@@ -44,8 +44,6 @@ src="/js/documentation_options.js">
     <span class="n">randomized_onehot_round</span><span class="p">,</span>
     <span class="n">strict_onehot_round</span><span class="p">,</span>
 <span class="p">)</span>
-
-<span class="c1"># pyre-fixme[21]: Could not find module `sklearn.preprocessing`.</span>
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelBinarizer</span><span class="p">,</span> <span class="n">LabelEncoder</span>
 
 
@@ -56,15 +54,11 @@ src="/js/documentation_options.js">
 <div class="viewcode-block" id="OneHotEncoder"><a class="viewcode-back" href="../../../../modelbridge.html#ax.modelbridge.transforms.one_hot.OneHotEncoder">[docs]</a><span class="k">class</span> <span class="nc">OneHotEncoder</span><span class="p">:</span>
     <span class="sd">"""Joins the two encoders needed for OneHot transform."""</span>
 
-    <span class="c1"># pyre-fixme[11]: Annotation `LabelEncoder` is not defined as a type.</span>
     <span class="n">int_encoder</span><span class="p">:</span> <span class="n">LabelEncoder</span>
-    <span class="c1"># pyre-fixme[11]: Annotation `LabelBinarizer` is not defined as a type.</span>
     <span class="n">label_binarizer</span><span class="p">:</span> <span class="n">LabelBinarizer</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># pyre-fixme[16]: Module `sklearn` has no attribute `preprocessing`.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">int_encoder</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-        <span class="c1"># pyre-fixme[16]: Module `sklearn` has no attribute `preprocessing`.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label_binarizer</span> <span class="o">=</span> <span class="n">LabelBinarizer</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">int_encoder</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
 
 <div class="viewcode-block" id="OneHotEncoder.transform"><a class="viewcode-back" href="../../../../modelbridge.html#ax.modelbridge.transforms.one_hot.OneHotEncoder.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -80,6 +74,7 @@ src="/js/documentation_options.js">
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">classes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">"""Return number of classes discovered while fitting transform."""</span>
+        <span class="c1"># pyre-fixme[16]: `LabelBinarizer` has no attribute `classes_`.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_binarizer</span><span class="o">.</span><span class="n">classes_</span></div>
 
 

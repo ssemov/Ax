@@ -342,10 +342,11 @@ src="/js/documentation_options.js">
 <span class="sd">            outcome_constraints: Constraints to validate.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">MultiObjective</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="p">(</span>
-                    <span class="s2">"MultiObjectiveOptimizationConfig only not supports "</span>
-                    <span class="s2">" MultiObjective. Use OptimizationConfig instead."</span>
+                    <span class="s2">"`MultiObjectiveOptimizationConfig` requires an objective "</span>
+                    <span class="s2">"of type `MultiObjective`. Use `OptimizationConfig` instead "</span>
+                    <span class="s2">"if using a single-metric objective."</span>
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="n">outcome_constraints</span> <span class="o">=</span> <span class="n">outcome_constraints</span> <span class="ow">or</span> <span class="p">[]</span>

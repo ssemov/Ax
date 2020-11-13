@@ -38,8 +38,6 @@ src="/js/documentation_options.js">
 
 <span class="kn">from</span> <span class="nn">ax.core.types</span> <span class="kn">import</span> <span class="n">TParameterization</span>
 <span class="kn">from</span> <span class="nn">ax.utils.common.serialization</span> <span class="kn">import</span> <span class="n">named_tuple_to_dict</span>
-
-<span class="c1"># pyre-fixme[21]: Could not find name `utils` in `plotly`.</span>
 <span class="kn">from</span> <span class="nn">plotly</span> <span class="kn">import</span> <span class="n">utils</span>
 
 
@@ -75,7 +73,6 @@ src="/js/documentation_options.js">
         <span class="c1"># Convert data to json-encodable form (strips out NamedTuple and numpy</span>
         <span class="c1"># array). This is a lossy conversion.</span>
         <span class="n">dict_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
-            <span class="c1"># pyre-fixme[16]: Module `plotly` has no attribute `utils`.</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">named_tuple_to_dict</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="bp">cls</span><span class="o">=</span><span class="n">utils</span><span class="o">.</span><span class="n">PlotlyJSONEncoder</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="c1"># pyre-fixme[7]: Expected `AxPlotConfig` but got `NamedTuple`.</span>

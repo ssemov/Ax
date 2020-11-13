@@ -255,7 +255,6 @@ src="/js/documentation_options.js">
 
 
 <div class="viewcode-block" id="agresti_coull_sem"><a class="viewcode-back" href="../../../../utils.html#ax.utils.stats.statstools.agresti_coull_sem">[docs]</a><span class="k">def</span> <span class="nf">agresti_coull_sem</span><span class="p">(</span>
-    <span class="c1"># pyre-fixme[11]: Annotation `Series` is not defined as a type.</span>
     <span class="n">n_numer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">n_denom</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
     <span class="n">prior_successes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
@@ -278,7 +277,6 @@ src="/js/documentation_options.js">
     <span class="k">return</span> <span class="n">sem</span></div>
 
 
-<span class="c1"># pyre-fixme[11]: Annotation `DataFrame` is not defined as a type.</span>
 <div class="viewcode-block" id="marginal_effects"><a class="viewcode-back" href="../../../../utils.html#ax.utils.stats.statstools.marginal_effects">[docs]</a><span class="k">def</span> <span class="nf">marginal_effects</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">"""</span>
 <span class="sd">    This method calculates the relative (in %) change in the outcome achieved</span>
@@ -321,7 +319,6 @@ src="/js/documentation_options.js">
             <span class="n">formatted_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span><span class="s2">"Name"</span><span class="p">:</span> <span class="n">cov</span><span class="p">,</span> <span class="s2">"Level"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"Beta"</span><span class="p">:</span> <span class="n">effect</span><span class="p">,</span> <span class="s2">"SE"</span><span class="p">:</span> <span class="n">effect_sem</span><span class="p">}</span>
             <span class="p">)</span>
-    <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">formatted_vals</span><span class="p">)[[</span><span class="s2">"Name"</span><span class="p">,</span> <span class="s2">"Level"</span><span class="p">,</span> <span class="s2">"Beta"</span><span class="p">,</span> <span class="s2">"SE"</span><span class="p">]]</span></div>
 
 
@@ -367,11 +364,9 @@ src="/js/documentation_options.js">
             <span class="n">as_percent</span><span class="o">=</span><span class="n">as_percent</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `concat`.</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
                 <span class="p">[</span>
                     <span class="n">subgroup_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"sem"</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-                    <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
                     <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
                         <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">means_rel</span><span class="p">,</span> <span class="n">sems_rel</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
                         <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"sem"</span><span class="p">],</span>
@@ -381,7 +376,6 @@ src="/js/documentation_options.js">
                 <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
-    <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `concat`.</span>
     <span class="n">df_rel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">include_sq</span><span class="p">:</span>
         <span class="n">df_rel</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_rel</span><span class="p">[</span><span class="s2">"arm_name"</span><span class="p">]</span> <span class="o">==</span> <span class="n">status_quo_name</span><span class="p">,</span> <span class="s2">"sem"</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>

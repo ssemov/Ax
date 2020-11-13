@@ -241,15 +241,26 @@ src="/js/documentation_options.js">
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">experiment</span>
 
-<div class="viewcode-block" id="Decoder.experiment_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.experiment_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">experiment_from_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment_sqa</span><span class="p">:</span> <span class="n">SQAExperiment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Experiment</span><span class="p">:</span>
-        <span class="sd">"""Convert SQLAlchemy Experiment to Ax Experiment."""</span>
+<div class="viewcode-block" id="Decoder.experiment_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.experiment_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">experiment_from_sqa</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment_sqa</span><span class="p">:</span> <span class="n">SQAExperiment</span><span class="p">,</span> <span class="n">reduced_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Experiment</span><span class="p">:</span>
+        <span class="sd">"""Convert SQLAlchemy Experiment to Ax Experiment.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            experiment_sqa: `SQAExperiment` to decode.</span>
+<span class="sd">            reduced_state: Whether to load experiment with a slightly reduced state</span>
+<span class="sd">                (without abandoned arms on experiment and without model state,</span>
+<span class="sd">                search space, and optimization config on generator runs).</span>
+<span class="sd">        """</span>
         <span class="n">subclass</span> <span class="o">=</span> <span class="p">(</span><span class="n">experiment_sqa</span><span class="o">.</span><span class="n">properties</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Keys</span><span class="o">.</span><span class="n">SUBCLASS</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">subclass</span> <span class="o">==</span> <span class="s2">"MultiTypeExperiment"</span><span class="p">:</span>
             <span class="n">experiment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_mt_experiment_from_sqa</span><span class="p">(</span><span class="n">experiment_sqa</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">experiment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_experiment_from_sqa</span><span class="p">(</span><span class="n">experiment_sqa</span><span class="p">)</span>
         <span class="n">trials</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">trial_from_sqa</span><span class="p">(</span><span class="n">trial_sqa</span><span class="o">=</span><span class="n">trial</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">trial_from_sqa</span><span class="p">(</span>
+                <span class="n">trial_sqa</span><span class="o">=</span><span class="n">trial</span><span class="p">,</span> <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span> <span class="n">reduced_state</span><span class="o">=</span><span class="n">reduced_state</span>
+            <span class="p">)</span>
             <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="n">experiment_sqa</span><span class="o">.</span><span class="n">trials</span>
         <span class="p">]</span>
 
@@ -280,7 +291,7 @@ src="/js/documentation_options.js">
             <span class="n">value</span><span class="o">=</span><span class="n">experiment_sqa</span><span class="o">.</span><span class="n">experiment_type</span><span class="p">,</span> <span class="n">enum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experiment_type_enum</span>
         <span class="p">)</span>
         <span class="n">experiment</span><span class="o">.</span><span class="n">_data_by_trial</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">data_by_trial</span><span class="p">)</span>
-
+        <span class="n">experiment</span><span class="o">.</span><span class="n">db_id</span> <span class="o">=</span> <span class="n">experiment_sqa</span><span class="o">.</span><span class="n">id</span>
         <span class="k">return</span> <span class="n">experiment</span></div>
 
 <div class="viewcode-block" id="Decoder.parameter_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.parameter_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">parameter_from_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter_sqa</span><span class="p">:</span> <span class="n">SQAParameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Parameter</span><span class="p">:</span>
@@ -290,7 +301,7 @@ src="/js/documentation_options.js">
                 <span class="k">raise</span> <span class="n">SQADecodeError</span><span class="p">(</span>  <span class="c1"># pragma: no cover</span>
                     <span class="s2">"`lower` and `upper` must be set for RangeParameter."</span>
                 <span class="p">)</span>
-            <span class="k">return</span> <span class="n">RangeParameter</span><span class="p">(</span>
+            <span class="n">parameter</span> <span class="o">=</span> <span class="n">RangeParameter</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">parameter_sqa</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">parameter_type</span><span class="o">=</span><span class="n">parameter_sqa</span><span class="o">.</span><span class="n">parameter_type</span><span class="p">,</span>
                 <span class="c1"># pyre-fixme[6]: Expected `float` for 3rd param but got</span>
@@ -307,7 +318,7 @@ src="/js/documentation_options.js">
                 <span class="k">raise</span> <span class="n">SQADecodeError</span><span class="p">(</span>  <span class="c1"># pragma: no cover</span>
                     <span class="s2">"`values` must be set for ChoiceParameter."</span>
                 <span class="p">)</span>
-            <span class="k">return</span> <span class="n">ChoiceParameter</span><span class="p">(</span>
+            <span class="n">parameter</span> <span class="o">=</span> <span class="n">ChoiceParameter</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">parameter_sqa</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">parameter_type</span><span class="o">=</span><span class="n">parameter_sqa</span><span class="o">.</span><span class="n">parameter_type</span><span class="p">,</span>
                 <span class="c1"># pyre-fixme[6]: Expected `List[Optional[Union[bool, float, int,</span>
@@ -320,7 +331,7 @@ src="/js/documentation_options.js">
         <span class="k">elif</span> <span class="n">parameter_sqa</span><span class="o">.</span><span class="n">domain_type</span> <span class="o">==</span> <span class="n">DomainType</span><span class="o">.</span><span class="n">FIXED</span><span class="p">:</span>
             <span class="c1"># Don't throw an error if parameter_sqa.fixed_value is None;</span>
             <span class="c1"># that might be the actual value!</span>
-            <span class="k">return</span> <span class="n">FixedParameter</span><span class="p">(</span>
+            <span class="n">parameter</span> <span class="o">=</span> <span class="n">FixedParameter</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">parameter_sqa</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">parameter_type</span><span class="o">=</span><span class="n">parameter_sqa</span><span class="o">.</span><span class="n">parameter_type</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">parameter_sqa</span><span class="o">.</span><span class="n">fixed_value</span><span class="p">,</span>
@@ -331,7 +342,10 @@ src="/js/documentation_options.js">
             <span class="k">raise</span> <span class="n">SQADecodeError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"Cannot decode SQAParameter because </span><span class="si">{</span><span class="n">parameter_sqa</span><span class="o">.</span><span class="n">domain_type</span><span class="si">}</span><span class="s2"> "</span>
                 <span class="s2">"is an invalid domain type."</span>
-            <span class="p">)</span></div>
+            <span class="p">)</span>
+
+        <span class="n">parameter</span><span class="o">.</span><span class="n">db_id</span> <span class="o">=</span> <span class="n">parameter_sqa</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="n">parameter</span></div>
 
 <div class="viewcode-block" id="Decoder.parameter_constraint_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.parameter_constraint_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">parameter_constraint_from_sqa</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -357,7 +371,7 @@ src="/js/documentation_options.js">
             <span class="n">lower_parameter</span> <span class="o">=</span> <span class="n">parameter_map</span><span class="p">[</span><span class="n">lower_name</span><span class="p">]</span>
             <span class="c1"># pyre-fixme[6]: Expected `str` for 1st param but got `None`.</span>
             <span class="n">upper_parameter</span> <span class="o">=</span> <span class="n">parameter_map</span><span class="p">[</span><span class="n">upper_name</span><span class="p">]</span>
-            <span class="k">return</span> <span class="n">OrderConstraint</span><span class="p">(</span>
+            <span class="n">constraint</span> <span class="o">=</span> <span class="n">OrderConstraint</span><span class="p">(</span>
                 <span class="n">lower_parameter</span><span class="o">=</span><span class="n">lower_parameter</span><span class="p">,</span> <span class="n">upper_parameter</span><span class="o">=</span><span class="n">upper_parameter</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">parameter_constraint_sqa</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">ParameterConstraintType</span><span class="o">.</span><span class="n">SUM</span><span class="p">:</span>
@@ -381,16 +395,19 @@ src="/js/documentation_options.js">
             <span class="n">a</span> <span class="o">=</span> <span class="n">a_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">is_upper_bound</span> <span class="o">=</span> <span class="n">a</span> <span class="o">==</span> <span class="mi">1</span>
             <span class="n">bound</span> <span class="o">=</span> <span class="n">parameter_constraint_sqa</span><span class="o">.</span><span class="n">bound</span> <span class="o">*</span> <span class="n">a</span>
-            <span class="k">return</span> <span class="n">SumConstraint</span><span class="p">(</span>
+            <span class="n">constraint</span> <span class="o">=</span> <span class="n">SumConstraint</span><span class="p">(</span>
                 <span class="n">parameters</span><span class="o">=</span><span class="n">constraint_parameters</span><span class="p">,</span>
                 <span class="n">is_upper_bound</span><span class="o">=</span><span class="n">is_upper_bound</span><span class="p">,</span>
                 <span class="n">bound</span><span class="o">=</span><span class="n">bound</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">ParameterConstraint</span><span class="p">(</span>
+            <span class="n">constraint</span> <span class="o">=</span> <span class="n">ParameterConstraint</span><span class="p">(</span>
                 <span class="n">constraint_dict</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">parameter_constraint_sqa</span><span class="o">.</span><span class="n">constraint_dict</span><span class="p">),</span>
                 <span class="n">bound</span><span class="o">=</span><span class="n">parameter_constraint_sqa</span><span class="o">.</span><span class="n">bound</span><span class="p">,</span>
-            <span class="p">)</span></div>
+            <span class="p">)</span>
+
+        <span class="n">constraint</span><span class="o">.</span><span class="n">db_id</span> <span class="o">=</span> <span class="n">parameter_constraint_sqa</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="n">constraint</span></div>
 
 <div class="viewcode-block" id="Decoder.search_space_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.search_space_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">search_space_from_sqa</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -431,6 +448,7 @@ src="/js/documentation_options.js">
         <span class="n">args</span><span class="p">[</span><span class="s2">"lower_is_better"</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_sqa</span><span class="o">.</span><span class="n">lower_is_better</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">metric_class</span><span class="o">.</span><span class="n">deserialize_init_args</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
         <span class="n">metric</span> <span class="o">=</span> <span class="n">metric_class</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">metric</span><span class="o">.</span><span class="n">db_id</span> <span class="o">=</span> <span class="n">metric_sqa</span><span class="o">.</span><span class="n">id</span>
         <span class="k">return</span> <span class="n">metric</span></div>
 
 <div class="viewcode-block" id="Decoder.metric_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.metric_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">metric_from_sqa</span><span class="p">(</span>
@@ -587,7 +605,9 @@ src="/js/documentation_options.js">
 
 <div class="viewcode-block" id="Decoder.arm_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.arm_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">arm_from_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arm_sqa</span><span class="p">:</span> <span class="n">SQAArm</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Arm</span><span class="p">:</span>
         <span class="sd">"""Convert SQLAlchemy Arm to Ax Arm."""</span>
-        <span class="k">return</span> <span class="n">Arm</span><span class="p">(</span><span class="n">parameters</span><span class="o">=</span><span class="n">arm_sqa</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">arm_sqa</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+        <span class="n">arm</span> <span class="o">=</span> <span class="n">Arm</span><span class="p">(</span><span class="n">parameters</span><span class="o">=</span><span class="n">arm_sqa</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">arm_sqa</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">arm</span><span class="o">.</span><span class="n">db_id</span> <span class="o">=</span> <span class="n">arm_sqa</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="n">arm</span></div>
 
 <div class="viewcode-block" id="Decoder.abandoned_arm_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.abandoned_arm_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">abandoned_arm_from_sqa</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">abandoned_arm_sqa</span><span class="p">:</span> <span class="n">SQAAbandonedArm</span>
@@ -600,9 +620,15 @@ src="/js/documentation_options.js">
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Decoder.generator_run_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.generator_run_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">generator_run_from_sqa</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">generator_run_sqa</span><span class="p">:</span> <span class="n">SQAGeneratorRun</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">generator_run_sqa</span><span class="p">:</span> <span class="n">SQAGeneratorRun</span><span class="p">,</span> <span class="n">reduced_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeneratorRun</span><span class="p">:</span>
-        <span class="sd">"""Convert SQLAlchemy GeneratorRun to Ax GeneratorRun."""</span>
+        <span class="sd">"""Convert SQLAlchemy GeneratorRun to Ax GeneratorRun.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            generator_run_sqa: `SQAGeneratorRun` to decode.</span>
+<span class="sd">            reduced_state: Whether to load generator runs with a slightly reduced state</span>
+<span class="sd">            (without model state, search space, and optimization config).</span>
+<span class="sd">        """</span>
         <span class="n">arms</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">opt_config</span> <span class="o">=</span> <span class="kc">None</span>
@@ -612,18 +638,22 @@ src="/js/documentation_options.js">
             <span class="n">arms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arm_from_sqa</span><span class="p">(</span><span class="n">arm_sqa</span><span class="o">=</span><span class="n">arm_sqa</span><span class="p">))</span>
             <span class="n">weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arm_sqa</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
 
-        <span class="n">opt_config</span><span class="p">,</span> <span class="n">tracking_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_config_and_tracking_metrics_from_sqa</span><span class="p">(</span>
-            <span class="n">metrics_sqa</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">metrics</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tracking_metrics</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">SQADecodeError</span><span class="p">(</span>  <span class="c1"># pragma: no cover</span>
-                <span class="s2">"GeneratorRun should not have tracking metrics."</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">reduced_state</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">opt_config</span><span class="p">,</span>
+                <span class="n">tracking_metrics</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_config_and_tracking_metrics_from_sqa</span><span class="p">(</span>
+                <span class="n">metrics_sqa</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">metrics</span>
             <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tracking_metrics</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SQADecodeError</span><span class="p">(</span>  <span class="c1"># pragma: no cover</span>
+                    <span class="s2">"GeneratorRun should not have tracking metrics."</span>
+                <span class="p">)</span>
 
-        <span class="n">search_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space_from_sqa</span><span class="p">(</span>
-            <span class="n">parameters_sqa</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span>
-            <span class="n">parameter_constraints_sqa</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">parameter_constraints</span><span class="p">,</span>
-        <span class="p">)</span>
+            <span class="n">search_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space_from_sqa</span><span class="p">(</span>
+                <span class="n">parameters_sqa</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span>
+                <span class="n">parameter_constraints_sqa</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">parameter_constraints</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="n">best_arm_predictions</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">model_predictions</span> <span class="o">=</span> <span class="kc">None</span>
@@ -633,23 +663,14 @@ src="/js/documentation_options.js">
         <span class="p">):</span>
             <span class="n">best_arm</span> <span class="o">=</span> <span class="n">Arm</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">best_arm_name</span><span class="p">,</span>
-                <span class="c1"># pyre-fixme[6]: Expected `Dict[str, Optional[Union[bool, float,</span>
-                <span class="c1">#  int, str]]]` for 2nd param but got `Optional[Dict[str,</span>
-                <span class="c1">#  Optional[Union[bool, float, int, str]]]]`.</span>
-                <span class="n">parameters</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">best_arm_parameters</span><span class="p">,</span>
+                <span class="n">parameters</span><span class="o">=</span><span class="n">not_none</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">best_arm_parameters</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="n">best_arm_predictions</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">best_arm</span><span class="p">,</span>
-                <span class="c1"># pyre-fixme[6]: Expected `Iterable[_T_co]` for 1st param but got</span>
-                <span class="c1">#  `Optional[Tuple[Dict[str, float], Optional[Dict[str, Dict[str,</span>
-                <span class="c1">#  float]]]]]`.</span>
-                <span class="nb">tuple</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">best_arm_predictions</span><span class="p">),</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="n">not_none</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">best_arm_predictions</span><span class="p">)),</span>
             <span class="p">)</span>
         <span class="n">model_predictions</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="c1"># pyre-fixme[6]: Expected `Iterable[_T_co]` for 1st param but got</span>
-            <span class="c1">#  `Optional[Tuple[Dict[str, List[float]], Dict[str, Dict[str,</span>
-            <span class="c1">#  List[float]]]]]`.</span>
-            <span class="nb">tuple</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">model_predictions</span><span class="p">)</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">not_none</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">model_predictions</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">model_predictions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">else</span> <span class="kc">None</span>
         <span class="p">)</span>
@@ -661,18 +682,21 @@ src="/js/documentation_options.js">
             <span class="n">search_space</span><span class="o">=</span><span class="n">search_space</span><span class="p">,</span>
             <span class="n">fit_time</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">fit_time</span><span class="p">,</span>
             <span class="n">gen_time</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">gen_time</span><span class="p">,</span>
-            <span class="c1"># pyre-fixme[6]: Expected `Optional[Tuple[Arm, Optional[Tuple[Dict[str,</span>
-            <span class="c1">#  float], Optional[Dict[str, Dict[str, float]]]]]]]` for 7th param but got</span>
-            <span class="c1">#  `Optional[Tuple[Arm, Tuple[Any, ...]]]`.</span>
-            <span class="n">best_arm_predictions</span><span class="o">=</span><span class="n">best_arm_predictions</span><span class="p">,</span>
+            <span class="n">best_arm_predictions</span><span class="o">=</span><span class="n">best_arm_predictions</span><span class="p">,</span>  <span class="c1"># pyre-ignore[6]</span>
             <span class="n">model_predictions</span><span class="o">=</span><span class="n">model_predictions</span><span class="p">,</span>
             <span class="n">model_key</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">model_key</span><span class="p">,</span>
-            <span class="n">model_kwargs</span><span class="o">=</span><span class="n">object_from_json</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">model_kwargs</span><span class="p">),</span>
-            <span class="n">bridge_kwargs</span><span class="o">=</span><span class="n">object_from_json</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">bridge_kwargs</span><span class="p">),</span>
-            <span class="n">gen_metadata</span><span class="o">=</span><span class="n">object_from_json</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">gen_metadata</span><span class="p">),</span>
-            <span class="n">model_state_after_gen</span><span class="o">=</span><span class="n">object_from_json</span><span class="p">(</span>
-                <span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">model_state_after_gen</span>
-            <span class="p">),</span>
+            <span class="n">model_kwargs</span><span class="o">=</span><span class="kc">None</span>
+            <span class="k">if</span> <span class="n">reduced_state</span>
+            <span class="k">else</span> <span class="n">object_from_json</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">model_kwargs</span><span class="p">),</span>
+            <span class="n">bridge_kwargs</span><span class="o">=</span><span class="kc">None</span>
+            <span class="k">if</span> <span class="n">reduced_state</span>
+            <span class="k">else</span> <span class="n">object_from_json</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">bridge_kwargs</span><span class="p">),</span>
+            <span class="n">gen_metadata</span><span class="o">=</span><span class="kc">None</span>
+            <span class="k">if</span> <span class="n">reduced_state</span>
+            <span class="k">else</span> <span class="n">object_from_json</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">gen_metadata</span><span class="p">),</span>
+            <span class="n">model_state_after_gen</span><span class="o">=</span><span class="kc">None</span>
+            <span class="k">if</span> <span class="n">reduced_state</span>
+            <span class="k">else</span> <span class="n">object_from_json</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">model_state_after_gen</span><span class="p">),</span>
             <span class="n">generation_step_index</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">generation_step_index</span><span class="p">,</span>
             <span class="n">candidate_metadata_by_arm_signature</span><span class="o">=</span><span class="n">object_from_json</span><span class="p">(</span>
                 <span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">candidate_metadata_by_arm_signature</span>
@@ -684,22 +708,43 @@ src="/js/documentation_options.js">
             <span class="n">enum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">generator_run_type_enum</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">generator_run</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">generator_run</span><span class="o">.</span><span class="n">db_id</span> <span class="o">=</span> <span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">id</span>
         <span class="k">return</span> <span class="n">generator_run</span></div>
 
 <div class="viewcode-block" id="Decoder.generation_strategy_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.generation_strategy_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">generation_strategy_from_sqa</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">gs_sqa</span><span class="p">:</span> <span class="n">SQAGenerationStrategy</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">gs_sqa</span><span class="p">:</span> <span class="n">SQAGenerationStrategy</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Experiment</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reduced_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenerationStrategy</span><span class="p">:</span>
         <span class="sd">"""Convert SQALchemy generation strategy to Ax `GenerationStrategy`."""</span>
         <span class="n">steps</span> <span class="o">=</span> <span class="n">object_from_json</span><span class="p">(</span><span class="n">gs_sqa</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
         <span class="n">gs</span> <span class="o">=</span> <span class="n">GenerationStrategy</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">gs_sqa</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
         <span class="n">gs</span><span class="o">.</span><span class="n">_curr</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">_steps</span><span class="p">[</span><span class="n">gs_sqa</span><span class="o">.</span><span class="n">curr_index</span><span class="p">]</span>
-        <span class="n">gs</span><span class="o">.</span><span class="n">_generator_runs</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_from_sqa</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span> <span class="k">for</span> <span class="n">gr</span> <span class="ow">in</span> <span class="n">gs_sqa</span><span class="o">.</span><span class="n">generator_runs</span>
-        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">reduced_state</span> <span class="ow">and</span> <span class="n">gs_sqa</span><span class="o">.</span><span class="n">generator_runs</span><span class="p">:</span>
+            <span class="c1"># Only fully load the last of the generator runs, load the rest with</span>
+            <span class="c1"># reduced state.</span>
+            <span class="n">gs</span><span class="o">.</span><span class="n">_generator_runs</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_from_sqa</span><span class="p">(</span><span class="n">generator_run_sqa</span><span class="o">=</span><span class="n">gr</span><span class="p">,</span> <span class="n">reduced_state</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">gr</span> <span class="ow">in</span> <span class="n">gs_sqa</span><span class="o">.</span><span class="n">generator_runs</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="n">gs</span><span class="o">.</span><span class="n">_generator_runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_from_sqa</span><span class="p">(</span>
+                    <span class="n">generator_run_sqa</span><span class="o">=</span><span class="n">gs_sqa</span><span class="o">.</span><span class="n">generator_runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">reduced_state</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gs</span><span class="o">.</span><span class="n">_generator_runs</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_from_sqa</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span> <span class="k">for</span> <span class="n">gr</span> <span class="ow">in</span> <span class="n">gs_sqa</span><span class="o">.</span><span class="n">generator_runs</span>
+            <span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gs</span><span class="o">.</span><span class="n">_generator_runs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># Generation strategy had an initialized model.</span>
-            <span class="c1"># pyre-ignore[16]: SQAGenerationStrategy does not have `experiment` attr.</span>
-            <span class="n">gs</span><span class="o">.</span><span class="n">_experiment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment_from_sqa</span><span class="p">(</span><span class="n">gs_sqa</span><span class="o">.</span><span class="n">experiment</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">experiment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SQADecodeError</span><span class="p">(</span>
+                    <span class="s2">"Cannot decode a generation strategy with a non-zero number of "</span>
+                    <span class="s2">"generator runs without an experiment."</span>
+                <span class="p">)</span>
+            <span class="n">gs</span><span class="o">.</span><span class="n">_experiment</span> <span class="o">=</span> <span class="n">experiment</span>
             <span class="c1"># If model in the current step was not directly from the `Models` enum,</span>
             <span class="c1"># pass its type to `restore_model_from_generator_run`, which will then</span>
             <span class="c1"># attempt to use this type to recreate the model.</span>
@@ -710,7 +755,7 @@ src="/js/documentation_options.js">
                 <span class="n">gs</span><span class="o">.</span><span class="n">_restore_model_from_generator_run</span><span class="p">(</span><span class="n">models_enum</span><span class="o">=</span><span class="n">models_enum</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">gs</span><span class="o">.</span><span class="n">_restore_model_from_generator_run</span><span class="p">()</span>
-        <span class="n">gs</span><span class="o">.</span><span class="n">_db_id</span> <span class="o">=</span> <span class="n">gs_sqa</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">db_id</span> <span class="o">=</span> <span class="n">gs_sqa</span><span class="o">.</span><span class="n">id</span>
         <span class="k">return</span> <span class="n">gs</span></div>
 
 <div class="viewcode-block" id="Decoder.runner_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.runner_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">runner_from_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner_sqa</span><span class="p">:</span> <span class="n">SQARunner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Runner</span><span class="p">:</span>
@@ -722,11 +767,22 @@ src="/js/documentation_options.js">
                 <span class="sa">f</span><span class="s2">"is an invalid type."</span>
             <span class="p">)</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">runner_class</span><span class="o">.</span><span class="n">deserialize_init_args</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">runner_sqa</span><span class="o">.</span><span class="n">properties</span> <span class="ow">or</span> <span class="p">{})</span>
-        <span class="c1"># pyre-fixme[45]: Cannot instantiate abstract class `Runner`.</span>
-        <span class="k">return</span> <span class="n">runner_class</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span></div>
+        <span class="c1"># pyre-ignore[45]: Cannot instantiate abstract class `Runner`.</span>
+        <span class="n">runner</span> <span class="o">=</span> <span class="n">runner_class</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">runner</span><span class="o">.</span><span class="n">db_id</span> <span class="o">=</span> <span class="n">runner_sqa</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="n">runner</span></div>
 
-<div class="viewcode-block" id="Decoder.trial_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.trial_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">trial_from_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial_sqa</span><span class="p">:</span> <span class="n">SQATrial</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseTrial</span><span class="p">:</span>
-        <span class="sd">"""Convert SQLAlchemy Trial to Ax Trial."""</span>
+<div class="viewcode-block" id="Decoder.trial_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.trial_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">trial_from_sqa</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">trial_sqa</span><span class="p">:</span> <span class="n">SQATrial</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">,</span> <span class="n">reduced_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseTrial</span><span class="p">:</span>
+        <span class="sd">"""Convert SQLAlchemy Trial to Ax Trial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            trial_sqa: `SQATrial` to decode.</span>
+<span class="sd">            reduced_state: Whether to load trial's generator run(s) with a slightly</span>
+<span class="sd">            reduced state (without model state, search space, and optimization config).</span>
+
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">trial_sqa</span><span class="o">.</span><span class="n">is_batch</span><span class="p">:</span>
             <span class="n">trial</span> <span class="o">=</span> <span class="n">BatchTrial</span><span class="p">(</span>
                 <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span>
@@ -737,7 +793,8 @@ src="/js/documentation_options.js">
             <span class="n">generator_run_structs</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">GeneratorRunStruct</span><span class="p">(</span>
                     <span class="n">generator_run</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">generator_run_from_sqa</span><span class="p">(</span>
-                        <span class="n">generator_run_sqa</span><span class="o">=</span><span class="n">generator_run_sqa</span>
+                        <span class="n">generator_run_sqa</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="p">,</span>
+                        <span class="n">reduced_state</span><span class="o">=</span><span class="n">reduced_state</span><span class="p">,</span>
                     <span class="p">),</span>
                     <span class="n">weight</span><span class="o">=</span><span class="n">generator_run_sqa</span><span class="o">.</span><span class="n">weight</span> <span class="ow">or</span> <span class="mf">1.0</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -757,12 +814,13 @@ src="/js/documentation_options.js">
                         <span class="n">new_generator_run_structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
                 <span class="n">generator_run_structs</span> <span class="o">=</span> <span class="n">new_generator_run_structs</span>
             <span class="n">trial</span><span class="o">.</span><span class="n">_generator_run_structs</span> <span class="o">=</span> <span class="n">generator_run_structs</span>
-            <span class="n">trial</span><span class="o">.</span><span class="n">_abandoned_arms_metadata</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">abandoned_arm_sqa</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abandoned_arm_from_sqa</span><span class="p">(</span>
-                    <span class="n">abandoned_arm_sqa</span><span class="o">=</span><span class="n">abandoned_arm_sqa</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">abandoned_arm_sqa</span> <span class="ow">in</span> <span class="n">trial_sqa</span><span class="o">.</span><span class="n">abandoned_arms</span>
-            <span class="p">}</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">reduced_state</span><span class="p">:</span>
+                <span class="n">trial</span><span class="o">.</span><span class="n">_abandoned_arms_metadata</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">abandoned_arm_sqa</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abandoned_arm_from_sqa</span><span class="p">(</span>
+                        <span class="n">abandoned_arm_sqa</span><span class="o">=</span><span class="n">abandoned_arm_sqa</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">abandoned_arm_sqa</span> <span class="ow">in</span> <span class="n">trial_sqa</span><span class="o">.</span><span class="n">abandoned_arms</span>
+                <span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">trial</span> <span class="o">=</span> <span class="n">Trial</span><span class="p">(</span>
                 <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span>
@@ -776,7 +834,8 @@ src="/js/documentation_options.js">
                         <span class="s2">"but has more than one generator run."</span>
                     <span class="p">)</span>
                 <span class="n">trial</span><span class="o">.</span><span class="n">_generator_run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_from_sqa</span><span class="p">(</span>
-                    <span class="n">generator_run_sqa</span><span class="o">=</span><span class="n">trial_sqa</span><span class="o">.</span><span class="n">generator_runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">generator_run_sqa</span><span class="o">=</span><span class="n">trial_sqa</span><span class="o">.</span><span class="n">generator_runs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">reduced_state</span><span class="o">=</span><span class="n">reduced_state</span><span class="p">,</span>
                 <span class="p">)</span>
         <span class="n">trial</span><span class="o">.</span><span class="n">_trial_type</span> <span class="o">=</span> <span class="n">trial_sqa</span><span class="o">.</span><span class="n">trial_type</span>
         <span class="c1"># Swap `DISPATCHED` for `RUNNING`, since `DISPATCHED` is deprecated and nearly</span>
@@ -806,17 +865,19 @@ src="/js/documentation_options.js">
         <span class="p">)</span>
         <span class="n">trial</span><span class="o">.</span><span class="n">_generation_step_index</span> <span class="o">=</span> <span class="n">trial_sqa</span><span class="o">.</span><span class="n">generation_step_index</span>
         <span class="n">trial</span><span class="o">.</span><span class="n">_properties</span> <span class="o">=</span> <span class="n">trial_sqa</span><span class="o">.</span><span class="n">properties</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">trial</span><span class="o">.</span><span class="n">db_id</span> <span class="o">=</span> <span class="n">trial_sqa</span><span class="o">.</span><span class="n">id</span>
         <span class="k">return</span> <span class="n">trial</span></div>
 
 <div class="viewcode-block" id="Decoder.data_from_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.decoder.Decoder.data_from_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">data_from_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_sqa</span><span class="p">:</span> <span class="n">SQAData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Data</span><span class="p">:</span>
         <span class="sd">"""Convert SQLAlchemy Data to AE Data."""</span>
-
-        <span class="c1"># Need dtype=False, otherwise infers arm_names like "4_1" should be int 41</span>
-        <span class="k">return</span> <span class="n">Data</span><span class="p">(</span>
+        <span class="n">dat</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span>
             <span class="n">description</span><span class="o">=</span><span class="n">data_sqa</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
-            <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `read_json`.</span>
+            <span class="c1"># NOTE: Need dtype=False, otherwise infers arm_names like</span>
+            <span class="c1"># "4_1" should be int 41.</span>
             <span class="n">df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">data_sqa</span><span class="o">.</span><span class="n">data_json</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-        <span class="p">)</span></div></div>
+        <span class="p">)</span>
+        <span class="n">dat</span><span class="o">.</span><span class="n">db_id</span> <span class="o">=</span> <span class="n">data_sqa</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="n">dat</span></div></div>
 </pre></div>
 </div>
 </div>

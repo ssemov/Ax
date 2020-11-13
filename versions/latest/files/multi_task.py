@@ -1,21 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# # Multi-task Bayesian Optimization
-# 
-# This tutorial uses synthetic functions to illustrate Bayesian optimization using a multi-task Gaussian Process in Ax. A typical use case is optimizing an expensive-to-evaluate (online) system with supporting (offline) simulations of that system.
-# 
-# Bayesian optimization with a multi-task kernel (Multi-task Bayesian optimization) is described by Swersky et al.  (2013). Letham and Bakshy (2019) describe using multi-task Bayesian optimization to tune a ranking system with a mix of online and offline (simulator) experiments.
-# 
-# This tutorial produces the results of Online Appendix 2 from [that paper](https://arxiv.org/pdf/1904.01049.pdf).
-# 
-# The synthetic problem used here is to maximize the Hartmann 6 function, a classic optimization test problem in 6 dimensions, subject to a constraint on the 2-norm of $x$. Both the objective and the constraint are treated as unknown and are modeled with separate GPs. Both objective and constraint are noisy.
-# 
-# Throughout the optimization we can make nosiy observations directly of the objective and constraint (an online observation), and we can make noisy observations of a biased version of the objective and constraint (offline observations). Bias is simulated by passing the function values through a piecewise linear function. Offline observations are much less time-consuming than online observations, so we wish to use them to improve our ability to optimize the online objective.
-
-# In[1]:
-
-
 from copy import deepcopy
 import numpy as np
 import pandas as pd
@@ -43,13 +25,6 @@ from ax.utils.notebook.plotting import init_notebook_plotting, render
 
 init_notebook_plotting()
 
-
-# ## 1. Define Metric classes
-# For this example, the online system is optimizing a Hartmann6 function subject to a 2-norm constraint. The Metric objects for these are directly imported above. We create analagous offline versions of these two metrics which are identical but have a transform applied (a piecewise linear function). We construct Metric objects for each of them.
-
-# In[2]:
-
-
 # Create metrics with artificial offline bias, for both objective and constraint
 # by passing the true values through a piecewise linear function.
 
@@ -70,22 +45,6 @@ class OfflineL2NormMetric(L2NormMetric):
             return (0.8 * (raw_res - m)) + m
         else:
             return (4 * (raw_res - m)) + m
-
-
-# ## 2. Create experiment
-# 
-# A MultiTypeExperiment is used for managing online and offline trials together. It is constructed in several steps:
-# 
-# 1. <b> Create the search space</b> - This is done in the usual way.
-# 2. <b>Specify optimization config</b> - Also done in the usual way.
-# 3. <b>Initialize Experiment</b> - In addition to the search_space and optimization_config, specify that "online" is the default trial_type. This is the main trial type for which we're optimizing. Optimization metrics are defined to be for this type and new trials assume this trial type by default.
-# 4. <b>Establish offline trial_type</b> - Register the "offline" trial type and specify how to deploy trials of this type.
-# 5. <b>Add offline metrics</b> - Create the offline metrics and add them to the experiment. When adding the metrics, we need to specify the trial type ("offline") and online metric name it is associated with so the model can link them.
-# 
-# Finally, because this is a synthetic benchmark problem where the true function values are known, we will also register metrics with the true (noiseless) function values for plotting below.
-
-# In[3]:
-
 
 def get_experiment(include_true_metric=True):
     noise_sd = 0.1  # Observations will have this much Normal noise added to them
@@ -134,14 +93,6 @@ def get_experiment(include_true_metric=True):
         exp.add_tracking_metric(L2NormMetric("constraint_noiseless", param_names=param_names, noise_sd=0.0), "online")
     return exp
 
-
-# ## 3. Vizualize the simulator bias
-# 
-# These figures compare the online measurements to the offline measurements on a random set of points, for both the objective metric and the constraint metric. You can see the offline measurements are biased but highly correlated. This produces Fig. S3 from the paper.
-
-# In[4]:
-
-
 # Generate 50 points from a Sobol sequence
 exp = get_experiment(include_true_metric=False)
 s = get_sobol(exp.search_space, scramble=False)
@@ -155,16 +106,6 @@ observations = observations_from_data(exp, data)
 # Plot the arms in batch 0 (online) vs. batch 1 (offline)
 render(interact_batch_comparison(observations, exp, 1, 0))
 
-
-# ## 4. The Bayesian optimization loop
-# 
-# Here we construct a Bayesian optimization loop that interleaves online and offline batches. The loop defined here is described in Algorithm 1 of the paper. We compare multi-task Bayesian optimization to regular Bayesian optimization using only online observations.
-# 
-# Here we measure performance over 3 repetitions of the loop. Each one takes 1-2 hours so the whole benchmark run will take several hours to complete.
-
-# In[5]:
-
-
 # Settings for the optimization benchmark.
 
 # This should be changed to 50 to reproduce the results from the paper.
@@ -175,13 +116,6 @@ n_init_offline = 20  # Size of the quasirandom initialization run offline
 n_opt_online = 5  # Batch size for BO selected points to be run online
 n_opt_offline = 20  # Batch size for BO selected to be run offline
 n_batches = 3  # Number of optimized BO batches
-
-
-# #### 4a. Optimization with online observations only
-# For the online-only case, we run `n_init_online` sobol points followed by `n_batches` batches of `n_opt_online` points selected by the GP. This is a normal Bayesian optimization loop.
-
-# In[6]:
-
 
 # This function runs a Bayesian optimization loop, making online observations only.
 def run_online_only_bo():
@@ -213,21 +147,6 @@ def run_online_only_bo():
     obj = df[df['metric_name'] == 'objective_noiseless']['mean'].values
     con = df[df['metric_name'] == 'constraint_noiseless']['mean'].values
     return obj, con
-
-
-# #### 4b. Multi-task Bayesian optimization
-# Here we incorporate offline observations to accelerate the optimization, while using the same total number of online observations as in the loop above. The strategy here is that outlined in Algorithm 1 of the paper.
-# 
-# 1. <b> Initialization</b> - Run `n_init_online` Sobol points online, and `n_init_offline` Sobol points offline.
-# 2. <b> Fit model </b> - Fit an MTGP to both online and offline observations.
-# 3. <b> Generate candidates </b> - Generate `n_opt_offline` candidates using NEI.
-# 4. <b> Launch offline batch </b> - Run the `n_opt_offline` candidates offline and observe their offline metrics.
-# 5. <b> Update model </b> - Update the MTGP with the new offline observations.
-# 6. <b> Select points for online batch </b> - Select the best (maximum utility) `n_opt_online` of the NEI candidates, after incorporating their offline observations, and run them online.
-# 7. <b> Update model and repeat </b> - Update the model with the online observations, and repeat from step 3 for the next batch.
-
-# In[7]:
-
 
 # Online batches are constructed by selecting the maximum utility points from the offline
 # batch, after updating the model with the offline results. This function selects the max utility points according
@@ -323,13 +242,6 @@ def run_mtbo():
         con = np.hstack((con, df_tcon['mean'].values))
     return obj, con
 
-
-# #### 4c. Run both loops
-# Run both Bayesian optimization loops and aggregate results.
-
-# In[8]:
-
-
 runners = {
     'GP, online only': run_online_only_bo,
     'MTGP': run_mtbo,
@@ -347,14 +259,6 @@ for k, v in iteration_objectives.items():
     iteration_objectives[k] = np.array(v)
     iteration_constraints[k] = np.array(iteration_constraints[k])
 
-
-# ## 5. Plot results
-# 
-# We plot the cumulative best point found by each online iteration of the optimization for each of the methods. We see that despite the bias in the offline observations, incorporating them into the optimziation with the multi-task model allows the optimization to converge to the optimal point much faster. With n_reps=50, this generates Fig. S4 of the paper.
-
-# In[9]:
-
-
 best_objectives = {}
 for m, obj in iteration_objectives.items():
     x = obj.copy()
@@ -364,9 +268,3 @@ for m, obj in iteration_objectives.items():
 render(
     optimization_trace_all_methods({k: best_objectives[k] for k in runners}) 
 )
-
-
-# #### References
-# Benjamin Letham and Eytan Bakshy. Bayesian optimization for policy search via online-offline experimentation. _arXiv preprint arXiv:1603.09326_, 2019.
-# 
-# Kevin Swersky, Jasper Snoek, and Ryan P Adams.  Multi-task Bayesian optimization.  In _Advances in Neural Information Processing Systems_ 26, NIPS, pages 2004–2012, 2013.

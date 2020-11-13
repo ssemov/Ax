@@ -32,7 +32,7 @@ src="/js/documentation_options.js">
 <span class="c1"># This source code is licensed under the MIT license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
-<span class="c1"># pyre-strict</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
@@ -97,10 +97,13 @@ src="/js/documentation_options.js">
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_metric_constraint</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">op</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">op</span>
 
-<div class="viewcode-block" id="OutcomeConstraint.clone"><a class="viewcode-back" href="../../../core.html#ax.OutcomeConstraint.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"OutcomeConstraint"</span><span class="p">:</span>
+<div class="viewcode-block" id="OutcomeConstraint.clone"><a class="viewcode-back" href="../../../core.html#ax.OutcomeConstraint.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OutcomeConstraint</span><span class="p">:</span>
         <span class="sd">"""Create a copy of this OutcomeConstraint."""</span>
         <span class="k">return</span> <span class="n">OutcomeConstraint</span><span class="p">(</span>
-            <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bound</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">relative</span>
+            <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">clone</span><span class="p">(),</span>
+            <span class="n">op</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">,</span>
+            <span class="n">bound</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bound</span><span class="p">,</span>
+            <span class="n">relative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">relative</span><span class="p">,</span>
         <span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
@@ -169,10 +172,13 @@ src="/js/documentation_options.js">
             <span class="n">op</span> <span class="o">=</span> <span class="n">ComparisonOp</span><span class="o">.</span><span class="n">LEQ</span> <span class="k">if</span> <span class="n">metric</span><span class="o">.</span><span class="n">lower_is_better</span> <span class="k">else</span> <span class="n">ComparisonOp</span><span class="o">.</span><span class="n">GEQ</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="n">op</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">bound</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="n">relative</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ObjectiveThreshold.clone"><a class="viewcode-back" href="../../../core.html#ax.ObjectiveThreshold.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ObjectiveThreshold"</span><span class="p">:</span>
+<div class="viewcode-block" id="ObjectiveThreshold.clone"><a class="viewcode-back" href="../../../core.html#ax.ObjectiveThreshold.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ObjectiveThreshold</span><span class="p">:</span>
         <span class="sd">"""Create a copy of this ObjectiveThreshold."""</span>
         <span class="k">return</span> <span class="n">ObjectiveThreshold</span><span class="p">(</span>
-            <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bound</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">relative</span><span class="p">,</span> <span class="n">op</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span>
+            <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">clone</span><span class="p">(),</span>
+            <span class="n">bound</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bound</span><span class="p">,</span>
+            <span class="n">relative</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">relative</span><span class="p">,</span>
+            <span class="n">op</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">,</span>
         <span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>

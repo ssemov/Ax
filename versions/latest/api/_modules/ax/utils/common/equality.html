@@ -99,14 +99,12 @@ src="/js/documentation_options.js">
     <span class="k">return</span> <span class="n">dt1</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">microsecond</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">dt2</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">microsecond</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<span class="c1"># pyre-fixme[11]: Annotation `DataFrame` is not defined as a type.</span>
 <div class="viewcode-block" id="dataframe_equals"><a class="viewcode-back" href="../../../../utils.html#ax.storage.sqa_store.db.dataframe_equals">[docs]</a><span class="k">def</span> <span class="nf">dataframe_equals</span><span class="p">(</span><span class="n">df1</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df2</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">"""Compare equality of two pandas dataframes."""</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">df1</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="n">df2</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="n">equal</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `testing`.</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span>
                 <span class="n">df1</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">df2</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">check_exact</span><span class="o">=</span><span class="kc">False</span>
             <span class="p">)</span>
@@ -134,7 +132,10 @@ src="/js/documentation_options.js">
 
 
 <div class="viewcode-block" id="object_attribute_dicts_find_unequal_fields"><a class="viewcode-back" href="../../../../utils.html#ax.storage.sqa_store.db.object_attribute_dicts_find_unequal_fields">[docs]</a><span class="k">def</span> <span class="nf">object_attribute_dicts_find_unequal_fields</span><span class="p">(</span>
-    <span class="n">one_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">other_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">fast_return</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">one_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">other_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">fast_return</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">skip_db_id_check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
     <span class="sd">"""Utility for finding out what attributes of two objects' attribute dicts</span>
 <span class="sd">    are unequal.</span>
@@ -166,6 +167,11 @@ src="/js/documentation_options.js">
         <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"_experiment"</span><span class="p">:</span>
             <span class="c1"># prevent infinite loop when checking equality of Trials</span>
             <span class="n">equal</span> <span class="o">=</span> <span class="n">one_val</span> <span class="ow">is</span> <span class="n">other_val</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="n">one_val</span><span class="o">.</span><span class="n">_name</span> <span class="o">==</span> <span class="n">other_val</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"analysis_scheduler"</span><span class="p">:</span>
+            <span class="c1"># prevent infinite loop when checking equality of analysis runs</span>
+            <span class="n">equal</span> <span class="o">=</span> <span class="n">one_val</span> <span class="ow">is</span> <span class="n">other_val</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="n">one_val</span><span class="o">.</span><span class="n">db_id</span> <span class="o">==</span> <span class="n">other_val</span><span class="o">.</span><span class="n">db_id</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"_db_id"</span><span class="p">:</span>
+            <span class="n">equal</span> <span class="o">=</span> <span class="n">skip_db_id_check</span> <span class="ow">or</span> <span class="n">one_val</span> <span class="o">==</span> <span class="n">other_val</span>
         <span class="k">elif</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"_model"</span><span class="p">:</span>  <span class="c1"># pragma: no cover (tested in modelbridge)</span>
             <span class="c1"># TODO[T52643706]: replace with per-`ModelBridge` method like</span>
             <span class="c1"># `equivalent_models`, to compare models more meaningfully.</span>
@@ -189,7 +195,6 @@ src="/js/documentation_options.js">
             <span class="n">equal</span> <span class="o">=</span> <span class="n">datetime_equals</span><span class="p">(</span><span class="n">one_val</span><span class="p">,</span> <span class="n">other_val</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">one_val</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
             <span class="n">equal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">one_val</span><span class="p">,</span> <span class="n">other_val</span><span class="p">)</span>
-        <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">one_val</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="n">equal</span> <span class="o">=</span> <span class="n">dataframe_equals</span><span class="p">(</span><span class="n">one_val</span><span class="p">,</span> <span class="n">other_val</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>

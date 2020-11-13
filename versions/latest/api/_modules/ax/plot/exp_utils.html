@@ -37,8 +37,6 @@ src="/js/documentation_options.js">
 <span class="kn">from</span> <span class="nn">ax.core</span> <span class="kn">import</span> <span class="n">Experiment</span>
 <span class="kn">from</span> <span class="nn">ax.core.metric</span> <span class="kn">import</span> <span class="n">Metric</span>
 <span class="kn">from</span> <span class="nn">ax.core.multi_type_experiment</span> <span class="kn">import</span> <span class="n">MultiTypeExperiment</span>
-
-<span class="c1"># pyre-fixme[21]: Could not find name `DataFrame` in `pandas`.</span>
 <span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
 
 
@@ -64,7 +62,6 @@ src="/js/documentation_options.js">
     <span class="n">metrics</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Metric</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">key_components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-    <span class="c1"># pyre-fixme[11]: Annotation `DataFrame` is not defined as a type.</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
     <span class="sd">"""Transforms an experiment to a DataFrame. Only supports Experiment and</span>
 <span class="sd">    SimpleExperiment.</span>
@@ -104,7 +101,6 @@ src="/js/documentation_options.js">
 
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">key_components</span><span class="p">:</span>
         <span class="n">_compact_column</span><span class="p">(</span><span class="n">metrics_pivot</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
-    <span class="c1"># pyre-fixme[16]: Module `pandas` has no attribute `DataFrame`.</span>
     <span class="n">inputs</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="nb">dict</span><span class="p">(</span><span class="n">arm</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">arm_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>

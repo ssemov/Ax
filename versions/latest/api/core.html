@@ -246,13 +246,8 @@ methods associated with the trial status.</p></li>
 <code class="sig-name descname">mark_completed</code><span class="sig-paren">(</span><span class="sig-paren">)</span> → ax.core.base_trial.BaseTrial<a class="reference internal" href="_modules/ax/core/base_trial.html#BaseTrial.mark_completed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.core.base_trial.BaseTrial.mark_completed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mark trial as completed.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>allow_repeat_completion</strong> – If set to True, this function will not raise an
-error is a trial that has already been marked as completed is
-being marked as completed again.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The trial instance.</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The trial instance.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1093,10 +1088,10 @@ their ‘time to live’ has passed.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>generator_run</strong> – GeneratorRun, associated with this trial.
-Trial has only one generator run (and thus arm)
-attached to it. This can also be set later through <cite>add_arm</cite>
-or <cite>add_generator_run</cite>, but a trial’s associated generator run is
-immutable once set.</p></li>
+Trial has only one arm attached to it and this generator_run
+must therefore contain one arm. This arm can also be set later
+through <cite>add_arm</cite> or <cite>add_generator_run</cite>, but a trial’s
+associated generator run is immutable once set.</p></li>
 <li><p><strong>trial_type</strong> – Type of this trial, if used in MultiTypeExperiment.</p></li>
 <li><p><strong>ttl_seconds</strong> – If specified, trials will be considered failed after
 this many seconds since the time the trial was ran, unless the
@@ -1341,22 +1336,6 @@ This field is set when the generator run is added to a trial.</p>
 <dt id="ax.core.generator_run.GeneratorRun.search_space">
 <em class="property">property </em><code class="sig-name descname">search_space</code><a class="headerlink" href="#ax.core.generator_run.GeneratorRun.search_space" title="Permalink to this definition">¶</a></dt>
 <dd><p>The search used during generation of this run.</p>
-</dd></dl>
-<dl class="method">
-<dt id="ax.core.generator_run.GeneratorRun.split_by_arm">
-<code class="sig-name descname">split_by_arm</code><span class="sig-paren">(</span><em class="sig-param">populate_all_fields: bool = False</em><span class="sig-paren">)</span> → List[ax.core.generator_run.GeneratorRun]<a class="reference internal" href="_modules/ax/core/generator_run.html#GeneratorRun.split_by_arm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.core.generator_run.GeneratorRun.split_by_arm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of generator runs, each with all the metadata of
-generator run, but only with one of its arms. Useful when splitting
-a single generator run into multiple 1-arm trials.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>populate_all_fields</strong> – By default, <cite>split_by_arm</cite> only sets some
-fields on the new, ‘split’ generator runs, in order to avoid
-creating multiple large objects and increasing the size of
-an experiment object. To force-populate all fields of the
-‘split’ generator runs, set ‘populate_all_fields’ to True.</p>
-</dd>
-</dl>
 </dd></dl>
 <dl class="method">
 <dt id="ax.core.generator_run.GeneratorRun.time_created">

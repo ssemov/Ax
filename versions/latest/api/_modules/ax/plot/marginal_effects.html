@@ -40,8 +40,6 @@ src="/js/documentation_options.js">
 <span class="kn">from</span> <span class="nn">ax.plot.base</span> <span class="kn">import</span> <span class="n">DECIMALS</span><span class="p">,</span> <span class="n">AxPlotConfig</span><span class="p">,</span> <span class="n">AxPlotTypes</span>
 <span class="kn">from</span> <span class="nn">ax.plot.helper</span> <span class="kn">import</span> <span class="n">get_plot_data</span>
 <span class="kn">from</span> <span class="nn">ax.utils.stats.statstools</span> <span class="kn">import</span> <span class="n">marginal_effects</span>
-
-<span class="c1"># pyre-fixme[21]: Could not find name `subplots` in `plotly`.</span>
 <span class="kn">from</span> <span class="nn">plotly</span> <span class="kn">import</span> <span class="n">subplots</span>
 
 
@@ -62,12 +60,10 @@ src="/js/documentation_options.js">
 
     <span class="n">arm_dfs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">arm</span> <span class="ow">in</span> <span class="n">plot_data</span><span class="o">.</span><span class="n">in_sample</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
         <span class="n">arm_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">arm</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">arm</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
         <span class="n">arm_df</span><span class="p">[</span><span class="s2">"mean"</span><span class="p">]</span> <span class="o">=</span> <span class="n">arm</span><span class="o">.</span><span class="n">y_hat</span><span class="p">[</span><span class="n">metric</span><span class="p">]</span>
         <span class="n">arm_df</span><span class="p">[</span><span class="s2">"sem"</span><span class="p">]</span> <span class="o">=</span> <span class="n">arm</span><span class="o">.</span><span class="n">se_hat</span><span class="p">[</span><span class="n">metric</span><span class="p">]</span>
         <span class="n">arm_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arm_df</span><span class="p">)</span>
-    <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `concat`.</span>
     <span class="n">effect_table</span> <span class="o">=</span> <span class="n">marginal_effects</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">arm_dfs</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
     <span class="n">varnames</span> <span class="o">=</span> <span class="n">effect_table</span><span class="p">[</span><span class="s2">"Name"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
@@ -82,7 +78,6 @@ src="/js/documentation_options.js">
                 <span class="n">name</span><span class="o">=</span><span class="n">varname</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">]</span>
-    <span class="c1"># pyre-fixme[16]: Module `plotly` has no attribute `subplots`.</span>
     <span class="n">fig</span> <span class="o">=</span> <span class="n">subplots</span><span class="o">.</span><span class="n">make_subplots</span><span class="p">(</span>
         <span class="n">cols</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">varnames</span><span class="p">),</span>
         <span class="n">rows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>

@@ -34,7 +34,7 @@ src="/js/documentation_options.js">
 
 <span class="kn">import</span> <span class="nn">typing</span>  <span class="c1"># noqa F401, this is to enable type-checking</span>
 
-<span class="kn">from</span> <span class="nn">ax.exceptions.core</span> <span class="kn">import</span> <span class="n">AxError</span>
+<span class="kn">from</span> <span class="nn">ax.exceptions.core</span> <span class="kn">import</span> <span class="n">AxError</span><span class="p">,</span> <span class="n">OptimizationComplete</span>
 
 
 <div class="viewcode-block" id="MaxParallelismReachedException"><a class="viewcode-back" href="../../../exceptions.html#ax.exceptions.generation_strategy.MaxParallelismReachedException">[docs]</a><span class="k">class</span> <span class="nc">MaxParallelismReachedException</span><span class="p">(</span><span class="n">AxError</span><span class="p">):</span>
@@ -54,7 +54,7 @@ src="/js/documentation_options.js">
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="GenerationStrategyCompleted"><a class="viewcode-back" href="../../../exceptions.html#ax.exceptions.generation_strategy.GenerationStrategyCompleted">[docs]</a><span class="k">class</span> <span class="nc">GenerationStrategyCompleted</span><span class="p">(</span><span class="n">AxError</span><span class="p">):</span>
+<div class="viewcode-block" id="GenerationStrategyCompleted"><a class="viewcode-back" href="../../../exceptions.html#ax.exceptions.generation_strategy.GenerationStrategyCompleted">[docs]</a><span class="k">class</span> <span class="nc">GenerationStrategyCompleted</span><span class="p">(</span><span class="n">OptimizationComplete</span><span class="p">):</span>
     <span class="sd">"""Special exception indicating that the generation strategy has been</span>
 <span class="sd">    completed.</span>
 <span class="sd">    """</span>

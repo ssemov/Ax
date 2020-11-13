@@ -99,7 +99,6 @@ src="/js/documentation_options.js">
         <span class="k">elif</span> <span class="n">_type</span> <span class="o">==</span> <span class="s2">"DataFrame"</span><span class="p">:</span>
             <span class="c1"># Need dtype=False, otherwise infers arm_names like "4_1"</span>
             <span class="c1"># should be int 41</span>
-            <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `read_json`.</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">object_json</span><span class="p">[</span><span class="s2">"value"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">_type</span> <span class="o">==</span> <span class="s2">"ndarray"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">object_json</span><span class="p">[</span><span class="s2">"value"</span><span class="p">])</span>

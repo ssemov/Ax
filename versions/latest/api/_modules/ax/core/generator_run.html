@@ -32,6 +32,8 @@ src="/js/documentation_options.js">
 <span class="c1"># This source code is licensed under the MIT license found in the</span>
 <span class="c1"># LICENSE file in the root directory of this source tree.</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
@@ -319,7 +321,6 @@ src="/js/documentation_options.js">
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_candidate_metadata_by_arm_signature</span>
 
     <span class="nd">@property</span>
-    <span class="c1"># pyre-fixme[11]: Annotation `DataFrame` is not defined as a type.</span>
     <span class="k">def</span> <span class="nf">param_df</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
         <span class="sd">"""</span>
 <span class="sd">        Constructs a Pandas dataframe with the parameter values for each arm.</span>
@@ -329,66 +330,16 @@ src="/js/documentation_options.js">
 <span class="sd">        Returns:</span>
 <span class="sd">            pd.DataFrame: a dataframe with the generator run's arms.</span>
 <span class="sd">        """</span>
-        <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
             <span class="p">{</span><span class="n">a</span><span class="o">.</span><span class="n">name_or_short_signature</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">parameters</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">arms</span><span class="p">},</span> <span class="n">orient</span><span class="o">=</span><span class="s2">"index"</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="GeneratorRun.clone"><a class="viewcode-back" href="../../../core.html#ax.GeneratorRun.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"GeneratorRun"</span><span class="p">:</span>
+<div class="viewcode-block" id="GeneratorRun.clone"><a class="viewcode-back" href="../../../core.html#ax.GeneratorRun.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeneratorRun</span><span class="p">:</span>
         <span class="sd">"""Return a deep copy of a GeneratorRun."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_arms</span><span class="p">(</span><span class="n">arms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">arms</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="GeneratorRun.split_by_arm"><a class="viewcode-back" href="../../../core.html#ax.GeneratorRun.split_by_arm">[docs]</a>    <span class="k">def</span> <span class="nf">split_by_arm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">populate_all_fields</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="s2">"GeneratorRun"</span><span class="p">]:</span>
-        <span class="sd">"""Return a list of generator runs, each with all the metadata of</span>
-<span class="sd">        generator run, but only with one of its arms. Useful when splitting</span>
-<span class="sd">        a single generator run into multiple 1-arm trials.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            populate_all_fields: By default, `split_by_arm` only sets some</span>
-<span class="sd">                fields on the new, 'split' generator runs, in order to avoid</span>
-<span class="sd">                creating multiple large objects and increasing the size of</span>
-<span class="sd">                an experiment object. To force-populate all fields of the</span>
-<span class="sd">                'split' generator runs, set 'populate_all_fields' to True.</span>
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_arms</span><span class="p">(</span>
-                <span class="n">arms</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="p">],</span>
-                <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="n">w</span><span class="p">],</span>
-                <span class="n">cherrypick_fields_to_clone</span><span class="o">=</span><span class="ow">not</span> <span class="n">populate_all_fields</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">arm_weights</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">]</span></div>
-
-    <span class="k">def</span> <span class="nf">_clone_with_arms</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">arms</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Arm</span><span class="p">],</span>
-        <span class="n">weights</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
-        <span class="n">cherrypick_fields_to_clone</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"GeneratorRun"</span><span class="p">:</span>
-        <span class="sd">"""Return a deep copy of a GeneratorRun with specified arms and</span>
-<span class="sd">        weights.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            arms: Arms to put into the clone generator run.</span>
-<span class="sd">            weights: Weights to put into the clone generator run.</span>
-<span class="sd">            cherrypick_fields_to_clone: If specified, only some properties</span>
-<span class="sd">                of the generator run by the given names will be cloned.</span>
-<span class="sd">                The 'cherrypicked' properties are: type, model key, and</span>
-<span class="sd">                the generation step index.</span>
-<span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">cherrypick_fields_to_clone</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">GeneratorRun</span><span class="p">(</span>
-                <span class="n">arms</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arms</span><span class="p">],</span>
-                <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">[:]</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="nb">type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">generator_run_type</span><span class="p">,</span>
-                <span class="n">model_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_key</span><span class="p">,</span>
-                <span class="n">generation_step_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_generation_step_index</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="c1"># Cloning all fields of the generator run.</span>
         <span class="n">cand_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">candidate_metadata_by_arm_signature</span>
         <span class="n">generator_run</span> <span class="o">=</span> <span class="n">GeneratorRun</span><span class="p">(</span>
-            <span class="n">arms</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arms</span><span class="p">],</span>
-            <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">[:]</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">arms</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">arms</span><span class="p">],</span>
+            <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[:]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="c1"># pyre-fixme[16]: `Optional` has no attribute `clone`.</span>
             <span class="n">optimization_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optimization_config</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -427,7 +378,7 @@ src="/js/documentation_options.js">
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_state_after_gen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">else</span> <span class="kc">None</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">generator_run</span>
+        <span class="k">return</span> <span class="n">generator_run</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">class_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>

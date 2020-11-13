@@ -76,7 +76,7 @@ are the same.</p>
 </dd></dl>
 <dl class="function">
 <dt id="ax.utils.common.equality.object_attribute_dicts_find_unequal_fields">
-<code class="sig-prename descclassname">ax.utils.common.equality.</code><code class="sig-name descname">object_attribute_dicts_find_unequal_fields</code><span class="sig-paren">(</span><em class="sig-param">one_dict: Dict[str, Any], other_dict: Dict[str, Any], fast_return: bool = True</em><span class="sig-paren">)</span> → Tuple[Dict[str, Tuple[Any, Any]], Dict[str, Tuple[Any, Any]]]<a class="reference internal" href="_modules/ax/utils/common/equality.html#object_attribute_dicts_find_unequal_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.utils.common.equality.object_attribute_dicts_find_unequal_fields" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ax.utils.common.equality.</code><code class="sig-name descname">object_attribute_dicts_find_unequal_fields</code><span class="sig-paren">(</span><em class="sig-param">one_dict: Dict[str, Any], other_dict: Dict[str, Any], fast_return: bool = True, skip_db_id_check: bool = False</em><span class="sig-paren">)</span> → Tuple[Dict[str, Tuple[Any, Any]], Dict[str, Tuple[Any, Any]]]<a class="reference internal" href="_modules/ax/utils/common/equality.html#object_attribute_dicts_find_unequal_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.utils.common.equality.object_attribute_dicts_find_unequal_fields" title="Permalink to this definition">¶</a></dt>
 <dd><p>Utility for finding out what attributes of two objects’ attribute dicts
 are unequal.</p>
 <dl class="field-list simple">
@@ -207,6 +207,9 @@ default level to INFO, instead of WARNING.</p>
 <p>To set a human-readable “output_name” that appears in logger outputs,
 add <cite>{“output_name”: “[MY_OUTPUT_NAME]”}</cite> to the logger’s contextual
 information. By default, we use the logger’s <cite>name</cite></p>
+<p>NOTE: To change the log level on particular outputs (e.g. STDERR logs),
+set the proper log level on the relevant handler, instead of the logger
+e.g. logger.handers[0].setLevel(INFO)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>name</strong> – The name of the logger.</p>
@@ -217,14 +220,10 @@ information. By default, we use the logger’s <cite>name</cite></p>
 </dl>
 </dd></dl>
 <dl class="function">
-<dt id="ax.utils.common.logger.get_root_logger">
-<code class="sig-prename descclassname">ax.utils.common.logger.</code><code class="sig-name descname">get_root_logger</code><span class="sig-paren">(</span><span class="sig-paren">)</span> → logging.Logger<a class="reference internal" href="_modules/ax/utils/common/logger.html#get_root_logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.utils.common.logger.get_root_logger" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="function">
-<dt id="ax.utils.common.logger.init_loggers">
-<code class="sig-prename descclassname">ax.utils.common.logger.</code><code class="sig-name descname">init_loggers</code><span class="sig-paren">(</span><span class="sig-paren">)</span> → None<a class="reference internal" href="_modules/ax/utils/common/logger.html#init_loggers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.utils.common.logger.init_loggers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets up Ax’s root logger to not propogate to Python’s root logger and
-use the default stream handler.</p>
+<dt id="ax.utils.common.logger.set_stderr_log_level">
+<code class="sig-prename descclassname">ax.utils.common.logger.</code><code class="sig-name descname">set_stderr_log_level</code><span class="sig-paren">(</span><em class="sig-param">level: int</em><span class="sig-paren">)</span> → None<a class="reference internal" href="_modules/ax/utils/common/logger.html#set_stderr_log_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.utils.common.logger.set_stderr_log_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the log level for stream handler, such that logs of given level
+are printed to STDERR by the root logger</p>
 </dd></dl>
 </div>
 <div class="section" id="module-ax.utils.common.serialization">

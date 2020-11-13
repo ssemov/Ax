@@ -84,6 +84,7 @@ src="/js/documentation_options.js">
 <span class="kn">from</span> <span class="nn">ax.utils.common.constants</span> <span class="kn">import</span> <span class="n">Keys</span>
 <span class="kn">from</span> <span class="nn">ax.utils.common.equality</span> <span class="kn">import</span> <span class="n">datetime_equals</span>
 <span class="kn">from</span> <span class="nn">ax.utils.common.logger</span> <span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span> <span class="nn">ax.utils.common.typeutils</span> <span class="kn">import</span> <span class="n">checked_cast</span><span class="p">,</span> <span class="n">not_none</span>
 
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -138,35 +139,46 @@ src="/js/documentation_options.js">
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">SQAEncodeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Value </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> is invalid for enum </span><span class="si">{</span><span class="n">enum</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Encoder.experiment_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.experiment_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">experiment_to_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SQAExperiment</span><span class="p">:</span>
-        <span class="sd">"""Convert Ax Experiment to SQLAlchemy.</span>
+<div class="viewcode-block" id="Encoder.experiment_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.experiment_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">experiment_to_sqa</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">:</span> <span class="n">Experiment</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SQAExperiment</span><span class="p">,</span> <span class="n">T_OBJ_TO_SQA</span><span class="p">]:</span>
+        <span class="sd">"""Convert Ax Experiment to SQLAlchemy and compile a list of (object,</span>
+<span class="sd">        sqa_counterpart) tuples to set `db_id` on user-facing classes after</span>
+<span class="sd">        the conversion is complete and the SQL session is flushed (SQLAlchemy</span>
+<span class="sd">        classes receive their `id` attributes during `session.flush()`).</span>
 
 <span class="sd">        In addition to creating and storing a new Experiment object, we need to</span>
 <span class="sd">        create and store copies of the Trials, Metrics, Parameters,</span>
 <span class="sd">        ParameterConstraints, and Runner owned by this Experiment.</span>
 <span class="sd">        """</span>
-        <span class="n">optimization_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_config_to_sqa</span><span class="p">(</span>
+        <span class="n">obj_to_sqa</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">optimization_metrics</span><span class="p">,</span> <span class="n">_obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_config_to_sqa</span><span class="p">(</span>
             <span class="n">experiment</span><span class="o">.</span><span class="n">optimization_config</span>
         <span class="p">)</span>
-        <span class="n">tracking_metrics</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">metric_to_sqa</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">experiment</span><span class="o">.</span><span class="n">_tracking_metrics</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-        <span class="p">]</span>
-        <span class="n">parameters</span><span class="p">,</span> <span class="n">parameter_constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space_to_sqa</span><span class="p">(</span>
+        <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj_to_sqa</span><span class="p">)</span>
+
+        <span class="n">tracking_metrics</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">experiment</span><span class="o">.</span><span class="n">_tracking_metrics</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">tracking_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_to_sqa</span><span class="p">(</span><span class="n">metric</span><span class="p">))</span>
+            <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">metric</span><span class="p">,</span> <span class="n">tracking_metrics</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="n">parameters</span><span class="p">,</span> <span class="n">parameter_constraints</span><span class="p">,</span> <span class="n">_obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space_to_sqa</span><span class="p">(</span>
             <span class="n">experiment</span><span class="o">.</span><span class="n">search_space</span>
         <span class="p">)</span>
+        <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj_to_sqa</span><span class="p">)</span>
 
         <span class="n">status_quo_name</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">status_quo_parameters</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">experiment</span><span class="o">.</span><span class="n">status_quo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># pyre-fixme[16]: `Optional` has no attribute `name`.</span>
-            <span class="n">status_quo_name</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">status_quo</span><span class="o">.</span><span class="n">name</span>
-            <span class="c1"># pyre-fixme[16]: `Optional` has no attribute `parameters`.</span>
-            <span class="n">status_quo_parameters</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">status_quo</span><span class="o">.</span><span class="n">parameters</span>
+            <span class="n">status_quo_name</span> <span class="o">=</span> <span class="n">not_none</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">status_quo</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">status_quo_parameters</span> <span class="o">=</span> <span class="n">not_none</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">status_quo</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
 
-        <span class="n">trials</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">trial_to_sqa</span><span class="p">(</span><span class="n">trial</span><span class="o">=</span><span class="n">trial</span><span class="p">)</span> <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="n">experiment</span><span class="o">.</span><span class="n">trials</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-        <span class="p">]</span>
+        <span class="n">trials</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="n">experiment</span><span class="o">.</span><span class="n">trials</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">trial_sqa</span><span class="p">,</span> <span class="n">_obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trial_to_sqa</span><span class="p">(</span><span class="n">trial</span><span class="o">=</span><span class="n">trial</span><span class="p">)</span>
+            <span class="n">trials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trial_sqa</span><span class="p">)</span>
+            <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj_to_sqa</span><span class="p">)</span>
 
         <span class="n">experiment_data</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">trial_index</span><span class="p">,</span> <span class="n">data_by_timestamp</span> <span class="ow">in</span> <span class="n">experiment</span><span class="o">.</span><span class="n">data_by_trial</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -176,41 +188,39 @@ src="/js/documentation_options.js">
                         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">trial_index</span><span class="o">=</span><span class="n">trial_index</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
+                <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="n">experiment_data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
 
         <span class="n">experiment_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_enum_value</span><span class="p">(</span>
             <span class="n">value</span><span class="o">=</span><span class="n">experiment</span><span class="o">.</span><span class="n">experiment_type</span><span class="p">,</span> <span class="n">enum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experiment_type_enum</span>
         <span class="p">)</span>
 
         <span class="n">properties</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">_properties</span>
+        <span class="n">runners</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">MultiTypeExperiment</span><span class="p">):</span>
             <span class="n">properties</span><span class="p">[</span><span class="n">Keys</span><span class="o">.</span><span class="n">SUBCLASS</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"MultiTypeExperiment"</span>
-            <span class="n">runners</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">runner_to_sqa</span><span class="p">(</span><span class="n">runner</span><span class="p">,</span> <span class="n">trial_type</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">trial_type</span><span class="p">,</span> <span class="n">runner</span> <span class="ow">in</span> <span class="n">experiment</span><span class="o">.</span><span class="n">_trial_type_to_runner</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">trial_type</span><span class="p">,</span> <span class="n">runner</span> <span class="ow">in</span> <span class="n">experiment</span><span class="o">.</span><span class="n">_trial_type_to_runner</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">runner_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner_to_sqa</span><span class="p">(</span><span class="n">runner</span><span class="p">,</span> <span class="n">trial_type</span><span class="p">)</span>
+                <span class="n">runners</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">runner_sqa</span><span class="p">)</span>
+                <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">runner</span><span class="p">,</span> <span class="n">runner_sqa</span><span class="p">))</span>
+
             <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">tracking_metrics</span><span class="p">:</span>
                 <span class="n">metric</span><span class="o">.</span><span class="n">trial_type</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">_metric_to_trial_type</span><span class="p">[</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">metric</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">experiment</span><span class="o">.</span><span class="n">_metric_to_canonical_name</span><span class="p">:</span>
                     <span class="n">metric</span><span class="o">.</span><span class="n">canonical_name</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">_metric_to_canonical_name</span><span class="p">[</span>
                         <span class="n">metric</span><span class="o">.</span><span class="n">name</span>
                     <span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">runners</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="c1"># pyre-fixme[6]: Expected `Runner` for 1st param but got</span>
-                <span class="c1">#  `Optional[Runner]`.</span>
-                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">runner_to_sqa</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">runner</span><span class="p">)]</span>
-                <span class="k">if</span> <span class="n">experiment</span><span class="o">.</span><span class="n">runner</span>
-                <span class="k">else</span> <span class="p">[]</span>
-            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">experiment</span><span class="o">.</span><span class="n">runner</span><span class="p">:</span>
+            <span class="n">runners</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">runner_to_sqa</span><span class="p">(</span><span class="n">not_none</span><span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">runner</span><span class="p">)))</span>
+            <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">experiment</span><span class="o">.</span><span class="n">runner</span><span class="p">,</span> <span class="n">runners</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">SimpleExperiment</span><span class="p">):</span>
             <span class="n">properties</span><span class="p">[</span><span class="n">Keys</span><span class="o">.</span><span class="n">SUBCLASS</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"SimpleExperiment"</span>
 
-        <span class="c1"># pyre-fixme: Expected `Base` for 1st...yping.Type[Experiment]`.</span>
+        <span class="c1"># pyre-ignore[9]: Expected `Base` for 1st...yping.Type[Experiment]`.</span>
         <span class="n">experiment_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">SQAExperiment</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span>
             <span class="n">Experiment</span>
         <span class="p">]</span>
-        <span class="k">return</span> <span class="n">experiment_class</span><span class="p">(</span>
+        <span class="n">exp_sqa</span> <span class="o">=</span> <span class="n">experiment_class</span><span class="p">(</span>
             <span class="n">description</span><span class="o">=</span><span class="n">experiment</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
             <span class="n">is_test</span><span class="o">=</span><span class="n">experiment</span><span class="o">.</span><span class="n">is_test</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">experiment</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -226,7 +236,9 @@ src="/js/documentation_options.js">
             <span class="n">data</span><span class="o">=</span><span class="n">experiment_data</span><span class="p">,</span>
             <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">,</span>
             <span class="n">default_trial_type</span><span class="o">=</span><span class="n">experiment</span><span class="o">.</span><span class="n">default_trial_type</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">experiment</span><span class="p">,</span> <span class="n">exp_sqa</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">exp_sqa</span><span class="p">,</span> <span class="n">obj_to_sqa</span></div>
 
 <div class="viewcode-block" id="Encoder.parameter_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.parameter_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">parameter_to_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SQAParameter</span><span class="p">:</span>
         <span class="sd">"""Convert Ax Parameter to SQLAlchemy."""</span>
@@ -305,22 +317,28 @@ src="/js/documentation_options.js">
 
 <div class="viewcode-block" id="Encoder.search_space_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.search_space_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">search_space_to_sqa</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">search_space</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SearchSpace</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">SQAParameter</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">SQAParameterConstraint</span><span class="p">]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">SQAParameter</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">SQAParameterConstraint</span><span class="p">],</span> <span class="n">T_OBJ_TO_SQA</span><span class="p">]:</span>
         <span class="sd">"""Convert Ax SearchSpace to a list of SQLAlchemy Parameters and</span>
-<span class="sd">        ParameterConstraints.</span>
+<span class="sd">        ParameterConstraints and compile a list of (object,</span>
+<span class="sd">        sqa_counterpart) tuples to set `db_id` on user-facing classes after</span>
+<span class="sd">        the conversion is complete and the SQL session is flushed (SQLAlchemy</span>
+<span class="sd">        classes receive their `id` attributes during `session.flush()`).</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">search_space</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">parameters</span><span class="p">,</span> <span class="n">parameter_constraints</span><span class="p">,</span> <span class="n">obj_to_sqa</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">search_space</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">search_space</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameter_to_sqa</span><span class="p">(</span><span class="n">parameter</span><span class="o">=</span><span class="n">parameter</span><span class="p">))</span>
+                <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">parameter</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
 
-        <span class="n">parameters</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parameter_to_sqa</span><span class="p">(</span><span class="n">parameter</span><span class="o">=</span><span class="n">parameter</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">search_space</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-        <span class="p">]</span>
-        <span class="n">parameter_constraints</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parameter_constraint_to_sqa</span><span class="p">(</span><span class="n">parameter_constraint</span><span class="o">=</span><span class="n">parameter_constraint</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">parameter_constraint</span> <span class="ow">in</span> <span class="n">search_space</span><span class="o">.</span><span class="n">parameter_constraints</span>
-        <span class="p">]</span>
-        <span class="k">return</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">parameter_constraints</span></div>
+            <span class="k">for</span> <span class="n">parameter_constraint</span> <span class="ow">in</span> <span class="n">search_space</span><span class="o">.</span><span class="n">parameter_constraints</span><span class="p">:</span>
+                <span class="n">parameter_constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parameter_constraint_to_sqa</span><span class="p">(</span>
+                        <span class="n">parameter_constraint</span><span class="o">=</span><span class="n">parameter_constraint</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">parameter_constraint</span><span class="p">,</span> <span class="n">parameter_constraints</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">parameter_constraints</span><span class="p">,</span> <span class="n">obj_to_sqa</span></div>
 
 <div class="viewcode-block" id="Encoder.get_metric_type_and_properties"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.get_metric_type_and_properties">[docs]</a>    <span class="k">def</span> <span class="nf">get_metric_type_and_properties</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Metric</span>
@@ -357,134 +375,148 @@ src="/js/documentation_options.js">
             <span class="n">lower_is_better</span><span class="o">=</span><span class="n">metric</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Encoder.objective_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.objective_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">objective_to_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objective</span><span class="p">:</span> <span class="n">Objective</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SQAMetric</span><span class="p">:</span>
-        <span class="sd">"""Convert Ax Objective to SQLAlchemy."""</span>
-
+<div class="viewcode-block" id="Encoder.objective_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.objective_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">objective_to_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objective</span><span class="p">:</span> <span class="n">Objective</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SQAMetric</span><span class="p">,</span> <span class="n">T_OBJ_TO_SQA</span><span class="p">]:</span>
+        <span class="sd">"""Convert Ax Objective to SQLAlchemy and compile a list of (object,</span>
+<span class="sd">        sqa_counterpart) tuples to set `db_id` on user-facing classes after</span>
+<span class="sd">        the conversion is complete and the SQL session is flushed (SQLAlchemy</span>
+<span class="sd">        classes receive their `id` attributes during `session.flush()`).</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">ScalarizedObjective</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scalarized_objective_to_sqa</span><span class="p">(</span><span class="n">objective</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">MultiObjective</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_objective_to_sqa</span><span class="p">(</span><span class="n">objective</span><span class="p">)</span>
+            <span class="n">objective_sqa</span><span class="p">,</span> <span class="n">obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scalarized_objective_to_sqa</span><span class="p">(</span><span class="n">objective</span><span class="p">)</span>
 
-        <span class="n">metric</span> <span class="o">=</span> <span class="n">objective</span><span class="o">.</span><span class="n">metric</span>
-        <span class="n">metric_type</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_metric_type_and_properties</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">MultiObjective</span><span class="p">):</span>
+            <span class="n">objective_sqa</span><span class="p">,</span> <span class="n">obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_objective_to_sqa</span><span class="p">(</span><span class="n">objective</span><span class="p">)</span>
 
-        <span class="c1"># pyre-fixme: Expected `Base` for 1st...t `typing.Type[Metric]`.</span>
-        <span class="n">metric_class</span><span class="p">:</span> <span class="n">SQAMetric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span><span class="n">Metric</span><span class="p">]</span>
-        <span class="c1"># pyre-fixme[29]: `SQAMetric` is not a function.</span>
-        <span class="k">return</span> <span class="n">metric_class</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">metric_type</span><span class="o">=</span><span class="n">metric_type</span><span class="p">,</span>
-            <span class="n">intent</span><span class="o">=</span><span class="n">MetricIntent</span><span class="o">.</span><span class="n">OBJECTIVE</span><span class="p">,</span>
-            <span class="n">minimize</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">minimize</span><span class="p">,</span>
-            <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">,</span>
-            <span class="n">lower_is_better</span><span class="o">=</span><span class="n">metric</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">metric_type</span><span class="p">,</span> <span class="n">properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_metric_type_and_properties</span><span class="p">(</span>
+                <span class="n">metric</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">metric</span>
+            <span class="p">)</span>
+            <span class="n">metric_class</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">SQAMetric</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span><span class="n">Metric</span><span class="p">])</span>
+            <span class="n">objective_sqa</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">metric_class</span><span class="p">(</span>  <span class="c1"># pyre-ignore[29]: `SQAMetric` is not a function.</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">metric_type</span><span class="o">=</span><span class="n">metric_type</span><span class="p">,</span>
+                    <span class="n">intent</span><span class="o">=</span><span class="n">MetricIntent</span><span class="o">.</span><span class="n">OBJECTIVE</span><span class="p">,</span>
+                    <span class="n">minimize</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">minimize</span><span class="p">,</span>
+                    <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">,</span>
+                    <span class="n">lower_is_better</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">metric</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">obj_to_sqa</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="n">checked_cast</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">objective</span><span class="o">.</span><span class="n">metric</span><span class="p">),</span>
+                    <span class="n">checked_cast</span><span class="p">(</span><span class="n">SQABase</span><span class="p">,</span> <span class="n">objective_sqa</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
 
-<div class="viewcode-block" id="Encoder.multi_objective_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.multi_objective_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">multi_objective_to_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objective</span><span class="p">:</span> <span class="n">MultiObjective</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SQAMetric</span><span class="p">:</span>
-        <span class="sd">"""Convert Ax Multi Objective to SQLAlchemy. Returns a parent</span>
-<span class="sd">        SQAMetric, whose children are the SQAMetrics corresponding to</span>
-<span class="sd">        metrics attribute of MultiObjective. The parent is used as a placeholder</span>
-<span class="sd">        for storage purposes."""</span>
-        <span class="n">metrics</span> <span class="o">=</span> <span class="n">objective</span><span class="o">.</span><span class="n">metrics</span>
+        <span class="k">return</span> <span class="n">checked_cast</span><span class="p">(</span><span class="n">SQAMetric</span><span class="p">,</span> <span class="n">objective_sqa</span><span class="p">),</span> <span class="n">obj_to_sqa</span></div>
 
-        <span class="c1"># pyre-fixme[9]: Expected SQABase type of an attribute;</span>
-        <span class="c1"># re-defined to be SQAMetric.</span>
-        <span class="n">metrics_by_name</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span>
-            <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Metric</span><span class="p">,</span> <span class="n">SQAMetric</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+<div class="viewcode-block" id="Encoder.multi_objective_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.multi_objective_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">multi_objective_to_sqa</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">objective</span><span class="p">:</span> <span class="n">MultiObjective</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SQAMetric</span><span class="p">,</span> <span class="n">T_OBJ_TO_SQA</span><span class="p">]:</span>
+        <span class="sd">"""Convert Ax Multi Objective to SQLAlchemy and compile a list of (object,</span>
+<span class="sd">        sqa_counterpart) tuples to set `db_id` on user-facing classes after</span>
+<span class="sd">        the conversion is complete and the SQL session is flushed (SQLAlchemy</span>
+<span class="sd">        classes receive their `id` attributes during `session.flush()`).</span>
+
+<span class="sd">        Returns: A parent `SQAMetric`, whose children are the `SQAMetric`-s</span>
+<span class="sd">            corresponding to `metrics` attribute of `MultiObjective`.</span>
+<span class="sd">            NOTE: The parent is used as a placeholder for storage purposes.</span>
+<span class="sd">        """</span>
+        <span class="n">metrics_by_name</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">(</span>
                 <span class="n">metric</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span><span class="n">Metric</span><span class="p">],</span>
+                <span class="n">cast</span><span class="p">(</span><span class="n">SQAMetric</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span><span class="n">Metric</span><span class="p">]),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">get_metric_type_and_properties</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">),</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span>
+            <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">objective</span><span class="o">.</span><span class="n">metrics</span>
         <span class="p">}</span>
 
-        <span class="c1"># Constructing children SQAMetric classes</span>
-        <span class="n">children_metrics</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="c1"># pyre-fixme[29]: `SQAMetric` is not a function.</span>
-            <span class="n">metric_class</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">metric_type</span><span class="o">=</span><span class="n">metrics_type_and_properties</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">intent</span><span class="o">=</span><span class="n">MetricIntent</span><span class="o">.</span><span class="n">OBJECTIVE</span><span class="p">,</span>
-                <span class="n">minimize</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">minimize</span><span class="p">,</span>
-                <span class="n">properties</span><span class="o">=</span><span class="n">metrics_type_and_properties</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                <span class="n">lower_is_better</span><span class="o">=</span><span class="n">metric</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">,</span>
+        <span class="c1"># Constructing children SQAMetric classes (these are the real metrics in</span>
+        <span class="c1"># the `MultiObjective`).</span>
+        <span class="n">children_metrics</span><span class="p">,</span> <span class="n">obj_to_sqa</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">metric_name</span> <span class="ow">in</span> <span class="n">metrics_by_name</span><span class="p">:</span>
+            <span class="n">metric</span><span class="p">,</span> <span class="n">metric_cls</span><span class="p">,</span> <span class="n">type_and_properties</span> <span class="o">=</span> <span class="n">metrics_by_name</span><span class="p">[</span><span class="n">metric_name</span><span class="p">]</span>
+            <span class="n">children_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">metric_cls</span><span class="p">(</span>  <span class="c1"># pyre-ignore[29]: `SQAMetric` is not a function.</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">metric_type</span><span class="o">=</span><span class="n">type_and_properties</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">intent</span><span class="o">=</span><span class="n">MetricIntent</span><span class="o">.</span><span class="n">OBJECTIVE</span><span class="p">,</span>
+                    <span class="n">minimize</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">minimize</span><span class="p">,</span>
+                    <span class="n">properties</span><span class="o">=</span><span class="n">type_and_properties</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">lower_is_better</span><span class="o">=</span><span class="n">metric</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">metric_name</span><span class="p">,</span> <span class="p">(</span>
-                <span class="n">metric</span><span class="p">,</span>
-                <span class="n">metric_class</span><span class="p">,</span>
-                <span class="n">metrics_type_and_properties</span><span class="p">,</span>
-            <span class="p">)</span> <span class="ow">in</span> <span class="n">metrics_by_name</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">]</span>
+            <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">metric</span><span class="p">,</span> <span class="n">children_metrics</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
 
-        <span class="c1"># Constructing a parent SQAMetric class</span>
-        <span class="c1"># pyre-fixme: Expected `Base` for 1st...t `typing.Type[Metric]`.</span>
-        <span class="n">parent_metric</span><span class="p">:</span> <span class="n">SQAMetric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span><span class="n">Metric</span><span class="p">]</span>
-        <span class="c1"># pyre-fixme[29]: `SQAMetric` is not a function.</span>
-        <span class="n">parent_metric</span> <span class="o">=</span> <span class="n">parent_metric</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">"scalarized_objective"</span><span class="p">,</span>
-            <span class="n">metric_type</span><span class="o">=</span><span class="n">METRIC_REGISTRY</span><span class="p">[</span><span class="n">Metric</span><span class="p">],</span>
-            <span class="n">intent</span><span class="o">=</span><span class="n">MetricIntent</span><span class="o">.</span><span class="n">MULTI_OBJECTIVE</span><span class="p">,</span>
-            <span class="n">minimize</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">minimize</span><span class="p">,</span>
-            <span class="n">lower_is_better</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">minimize</span><span class="p">,</span>
-            <span class="n">scalarized_objective_children_metrics</span><span class="o">=</span><span class="n">children_metrics</span><span class="p">,</span>
+        <span class="c1"># Constructing a parent SQAMetric class (not a real metric, only a placeholder</span>
+        <span class="c1"># to group the metrics together).</span>
+        <span class="n">parent_metric_cls</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">SQAMetric</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span><span class="n">Metric</span><span class="p">])</span>
+        <span class="n">parent_metric</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">parent_metric_cls</span><span class="p">(</span>  <span class="c1"># pyre-ignore[29]: `SQAMetric` is not a func.</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"scalarized_objective"</span><span class="p">,</span>
+                <span class="n">metric_type</span><span class="o">=</span><span class="n">METRIC_REGISTRY</span><span class="p">[</span><span class="n">Metric</span><span class="p">],</span>
+                <span class="n">intent</span><span class="o">=</span><span class="n">MetricIntent</span><span class="o">.</span><span class="n">MULTI_OBJECTIVE</span><span class="p">,</span>
+                <span class="n">minimize</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">minimize</span><span class="p">,</span>
+                <span class="n">lower_is_better</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">minimize</span><span class="p">,</span>
+                <span class="n">scalarized_objective_children_metrics</span><span class="o">=</span><span class="n">children_metrics</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span>
+        <span class="c1"># NOTE: No need to append parent metric to `obj_to_sqa`, because it does not</span>
+        <span class="c1"># have a corresponding user-facing `Metric` object.</span>
 
-        <span class="k">return</span> <span class="n">parent_metric</span></div>
+        <span class="k">return</span> <span class="n">parent_metric</span><span class="p">,</span> <span class="n">obj_to_sqa</span></div>
 
-<div class="viewcode-block" id="Encoder.scalarized_objective_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.scalarized_objective_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">scalarized_objective_to_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objective</span><span class="p">:</span> <span class="n">ScalarizedObjective</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SQAMetric</span><span class="p">:</span>
-        <span class="sd">"""Convert Ax Scalarized Objective to SQLAlchemy. Returns a parent</span>
-<span class="sd">        SQAMetric, whose children are the SQAMetrics corresponding to</span>
-<span class="sd">        metrics attribute of Scalarized Objective. The parent is used as a placeholder</span>
-<span class="sd">        for storage purposes."""</span>
+<div class="viewcode-block" id="Encoder.scalarized_objective_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.scalarized_objective_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">scalarized_objective_to_sqa</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">objective</span><span class="p">:</span> <span class="n">ScalarizedObjective</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SQAMetric</span><span class="p">,</span> <span class="n">T_OBJ_TO_SQA</span><span class="p">]:</span>
+        <span class="sd">"""Convert Ax Scalarized Objective to SQLAlchemy and compile a list of</span>
+<span class="sd">        (object, sqa_counterpart) tuples to set `db_id` on user-facing classes after</span>
+<span class="sd">        the conversion is complete and the SQL session is flushed (SQLAlchemy</span>
+<span class="sd">        classes receive their `id` attributes during `session.flush()`).</span>
+
+<span class="sd">        Returns: A parent `SQAMetric`, whose children are the `SQAMetric`-s</span>
+<span class="sd">            corresponding to `metrics` attribute of `ScalarizedObjective`.</span>
+<span class="sd">            NOTE: The parent is used as a placeholder for storage purposes.</span>
+<span class="sd">        """</span>
         <span class="n">metrics</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">objective</span><span class="o">.</span><span class="n">metrics</span><span class="p">,</span> <span class="n">objective</span><span class="o">.</span><span class="n">weights</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="n">metrics</span> <span class="ow">and</span> <span class="n">weights</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">SQAEncodeError</span><span class="p">(</span>  <span class="c1"># pragma: no cover</span>
+                <span class="s2">"Metrics and weights in scalarized objective "</span>
+                <span class="s2">"must be lists of equal length."</span>
+            <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">metrics</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">SQAEncodeError</span><span class="p">(</span>
-                <span class="s2">"Metrics and weights in scalarized objective </span><span class="se">\</span>
-<span class="s2">                must be lists of equal length."</span>
-            <span class="p">)</span>  <span class="c1"># pragma: no cover</span>
-
-        <span class="c1"># pyre-fixme[9]: Expected SQABase type of an attribute;</span>
-        <span class="c1"># re-defined to be SQAMetric.</span>
-        <span class="n">metrics_by_name</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span>
-            <span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Metric</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">SQAMetric</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">metrics_by_name</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">(</span>
                 <span class="n">metric</span><span class="p">,</span>
                 <span class="n">weight</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span><span class="n">Metric</span><span class="p">],</span>
+                <span class="n">cast</span><span class="p">(</span><span class="n">SQAMetric</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span><span class="n">Metric</span><span class="p">]),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">get_metric_type_and_properties</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
         <span class="p">}</span>
 
-        <span class="c1"># Constructing children SQAMetric classes</span>
-        <span class="n">children_metrics</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="c1"># pyre-fixme[29]: `SQAMetric` is not a function.</span>
-            <span class="n">metric_class</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">metric_name</span><span class="p">,</span>
-                <span class="n">metric_type</span><span class="o">=</span><span class="n">metrics_type_and_properties</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">intent</span><span class="o">=</span><span class="n">MetricIntent</span><span class="o">.</span><span class="n">OBJECTIVE</span><span class="p">,</span>
-                <span class="n">minimize</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">minimize</span><span class="p">,</span>
-                <span class="n">properties</span><span class="o">=</span><span class="n">metrics_type_and_properties</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                <span class="n">lower_is_better</span><span class="o">=</span><span class="n">metric</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">,</span>
-                <span class="n">scalarized_objective_weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span>
+        <span class="c1"># Constructing children SQAMetric classes (these are the real metrics in</span>
+        <span class="c1"># the `ScalarizedObjective`).</span>
+        <span class="n">children_metrics</span><span class="p">,</span> <span class="n">obj_to_sqa</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">metric_name</span> <span class="ow">in</span> <span class="n">metrics_by_name</span><span class="p">:</span>
+            <span class="n">m</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">metric_cls</span><span class="p">,</span> <span class="n">type_and_properties</span> <span class="o">=</span> <span class="n">metrics_by_name</span><span class="p">[</span><span class="n">metric_name</span><span class="p">]</span>
+            <span class="n">children_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">metric_cls</span><span class="p">(</span>  <span class="c1"># pyre-ignore[29]: `SQAMetric` is not a function.</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">metric_name</span><span class="p">,</span>
+                    <span class="n">metric_type</span><span class="o">=</span><span class="n">type_and_properties</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">intent</span><span class="o">=</span><span class="n">MetricIntent</span><span class="o">.</span><span class="n">OBJECTIVE</span><span class="p">,</span>
+                    <span class="n">minimize</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">minimize</span><span class="p">,</span>
+                    <span class="n">properties</span><span class="o">=</span><span class="n">type_and_properties</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">lower_is_better</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">,</span>
+                    <span class="n">scalarized_objective_weight</span><span class="o">=</span><span class="n">w</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">metric_name</span><span class="p">,</span> <span class="p">(</span>
-                <span class="n">metric</span><span class="p">,</span>
-                <span class="n">weight</span><span class="p">,</span>
-                <span class="n">metric_class</span><span class="p">,</span>
-                <span class="n">metrics_type_and_properties</span><span class="p">,</span>
-            <span class="p">)</span> <span class="ow">in</span> <span class="n">metrics_by_name</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">]</span>
+            <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">m</span><span class="p">,</span> <span class="n">children_metrics</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
 
         <span class="c1"># Constructing a parent SQAMetric class</span>
-        <span class="c1"># pyre-fixme: Expected `Base` for 1st...t `typing.Type[Metric]`.</span>
-        <span class="n">parent_metric</span><span class="p">:</span> <span class="n">SQAMetric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span><span class="n">Metric</span><span class="p">]</span>
-        <span class="c1"># pyre-fixme[29]: `SQAMetric` is not a function.</span>
-        <span class="n">parent_metric</span> <span class="o">=</span> <span class="n">parent_metric</span><span class="p">(</span>
+        <span class="n">parent_metric_cls</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">SQAMetric</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span><span class="n">Metric</span><span class="p">])</span>
+        <span class="n">parent_metric</span> <span class="o">=</span> <span class="n">parent_metric_cls</span><span class="p">(</span>  <span class="c1"># pyre-ignore[29]: `SQAMetric` not a func.</span>
             <span class="n">name</span><span class="o">=</span><span class="s2">"scalarized_objective"</span><span class="p">,</span>
             <span class="n">metric_type</span><span class="o">=</span><span class="n">METRIC_REGISTRY</span><span class="p">[</span><span class="n">Metric</span><span class="p">],</span>
             <span class="n">intent</span><span class="o">=</span><span class="n">MetricIntent</span><span class="o">.</span><span class="n">SCALARIZED_OBJECTIVE</span><span class="p">,</span>
@@ -492,8 +524,10 @@ src="/js/documentation_options.js">
             <span class="n">lower_is_better</span><span class="o">=</span><span class="n">objective</span><span class="o">.</span><span class="n">minimize</span><span class="p">,</span>
             <span class="n">scalarized_objective_children_metrics</span><span class="o">=</span><span class="n">children_metrics</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="c1"># NOTE: No need to append parent metric to `obj_to_sqa`, because it does not</span>
+        <span class="c1"># have a corresponding user-facing `Metric` object.</span>
 
-        <span class="k">return</span> <span class="n">parent_metric</span></div>
+        <span class="k">return</span> <span class="n">parent_metric</span><span class="p">,</span> <span class="n">obj_to_sqa</span></div>
 
 <div class="viewcode-block" id="Encoder.outcome_constraint_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.outcome_constraint_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">outcome_constraint_to_sqa</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">outcome_constraint</span><span class="p">:</span> <span class="n">OutcomeConstraint</span>
@@ -539,24 +573,36 @@ src="/js/documentation_options.js">
 
 <div class="viewcode-block" id="Encoder.optimization_config_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.optimization_config_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">optimization_config_to_sqa</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">optimization_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OptimizationConfig</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SQAMetric</span><span class="p">]:</span>
-        <span class="sd">"""Convert Ax OptimizationConfig to a list of SQLAlchemy Metrics."""</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">SQAMetric</span><span class="p">],</span> <span class="n">T_OBJ_TO_SQA</span><span class="p">]:</span>
+        <span class="sd">"""Convert Ax OptimizationConfig to a list of SQLAlchemy Metrics</span>
+<span class="sd">        and compile a list of (object, sqa_counterpart) tuples to set `db_id`</span>
+<span class="sd">        on user-facing classes after the conversion is complete and the SQL</span>
+<span class="sd">        session is flushed (SQLAlchemy classes receive their `id` attributes</span>
+<span class="sd">        during `session.flush()`).</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">optimization_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
 
-        <span class="n">objective_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective_to_sqa</span><span class="p">(</span><span class="n">objective</span><span class="o">=</span><span class="n">optimization_config</span><span class="o">.</span><span class="n">objective</span><span class="p">)</span>
-        <span class="n">outcome_constraints_sqa</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">outcome_constraint_to_sqa</span><span class="p">(</span><span class="n">outcome_constraint</span><span class="o">=</span><span class="n">constraint</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="n">optimization_config</span><span class="o">.</span><span class="n">outcome_constraints</span>
-        <span class="p">]</span>
+        <span class="n">metrics_sqa</span><span class="p">,</span> <span class="n">obj_to_sqa</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">obj_sqa</span><span class="p">,</span> <span class="n">_obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective_to_sqa</span><span class="p">(</span>
+            <span class="n">objective</span><span class="o">=</span><span class="n">optimization_config</span><span class="o">.</span><span class="n">objective</span>
+        <span class="p">)</span>
+        <span class="n">metrics_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj_sqa</span><span class="p">)</span>
+        <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj_to_sqa</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="n">optimization_config</span><span class="o">.</span><span class="n">outcome_constraints</span><span class="p">:</span>
+            <span class="n">constraint_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outcome_constraint_to_sqa</span><span class="p">(</span>
+                <span class="n">outcome_constraint</span><span class="o">=</span><span class="n">constraint</span>
+            <span class="p">)</span>
+            <span class="n">metrics_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constraint_sqa</span><span class="p">)</span>
+            <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">constraint</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">constraint_sqa</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimization_config</span><span class="p">,</span> <span class="n">MultiObjectiveOptimizationConfig</span><span class="p">):</span>
-            <span class="n">objective_thresholds_sqa</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">objective_threshold_to_sqa</span><span class="p">(</span><span class="n">objective_threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">optimization_config</span><span class="o">.</span><span class="n">objective_thresholds</span>
-            <span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">objective_thresholds_sqa</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">objective_sqa</span><span class="p">]</span> <span class="o">+</span> <span class="n">outcome_constraints_sqa</span> <span class="o">+</span> <span class="n">objective_thresholds_sqa</span></div>
+            <span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="n">optimization_config</span><span class="o">.</span><span class="n">objective_thresholds</span><span class="p">:</span>
+                <span class="n">threshold_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective_threshold_to_sqa</span><span class="p">(</span>
+                    <span class="n">objective_threshold</span><span class="o">=</span><span class="n">threshold</span>
+                <span class="p">)</span>
+                <span class="n">metrics_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">threshold_sqa</span><span class="p">)</span>
+                <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">threshold</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">threshold_sqa</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">metrics_sqa</span><span class="p">,</span> <span class="n">obj_to_sqa</span></div>
 
 <div class="viewcode-block" id="Encoder.arm_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.arm_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">arm_to_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arm</span><span class="p">:</span> <span class="n">Arm</span><span class="p">,</span> <span class="n">weight</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SQAArm</span><span class="p">:</span>
         <span class="sd">"""Convert Ax Arm to SQLAlchemy."""</span>
@@ -581,22 +627,29 @@ src="/js/documentation_options.js">
 
 <div class="viewcode-block" id="Encoder.generator_run_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.generator_run_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">generator_run_to_sqa</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">generator_run</span><span class="p">:</span> <span class="n">GeneratorRun</span><span class="p">,</span> <span class="n">weight</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SQAGeneratorRun</span><span class="p">:</span>
-        <span class="sd">"""Convert Ax GeneratorRun to SQLAlchemy.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SQAGeneratorRun</span><span class="p">,</span> <span class="n">T_OBJ_TO_SQA</span><span class="p">]:</span>
+        <span class="sd">"""Convert Ax GeneratorRun to SQLAlchemy and compile a list of (object,</span>
+<span class="sd">        sqa_counterpart) tuples to set `db_id` on user-facing classes after</span>
+<span class="sd">        the conversion is complete and the SQL session is flushed (SQLAlchemy</span>
+<span class="sd">        classes receive their `id` attributes during `session.flush()`).</span>
 
 <span class="sd">        In addition to creating and storing a new GeneratorRun object, we need to</span>
 <span class="sd">        create and store copies of the Arms, Metrics, Parameters, and</span>
 <span class="sd">        ParameterConstraints owned by this GeneratorRun.</span>
 <span class="sd">        """</span>
-        <span class="n">arms</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arm_to_sqa</span><span class="p">(</span><span class="n">arm</span><span class="o">=</span><span class="n">arm</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">)</span>
-            <span class="k">for</span> <span class="p">(</span><span class="n">arm</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span> <span class="ow">in</span> <span class="n">generator_run</span><span class="o">.</span><span class="n">arm_weights</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">]</span>
+        <span class="n">arms</span><span class="p">,</span> <span class="n">obj_to_sqa</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">arm</span><span class="p">,</span> <span class="n">arm_weight</span> <span class="ow">in</span> <span class="n">generator_run</span><span class="o">.</span><span class="n">arm_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">arms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arm_to_sqa</span><span class="p">(</span><span class="n">arm</span><span class="o">=</span><span class="n">arm</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">arm_weight</span><span class="p">))</span>
+            <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">arm</span><span class="p">,</span> <span class="n">arms</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
 
-        <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_config_to_sqa</span><span class="p">(</span><span class="n">generator_run</span><span class="o">.</span><span class="n">optimization_config</span><span class="p">)</span>
-        <span class="n">parameters</span><span class="p">,</span> <span class="n">parameter_constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space_to_sqa</span><span class="p">(</span>
+        <span class="n">metrics</span><span class="p">,</span> <span class="n">_obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimization_config_to_sqa</span><span class="p">(</span>
+            <span class="n">generator_run</span><span class="o">.</span><span class="n">optimization_config</span>
+        <span class="p">)</span>
+        <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj_to_sqa</span><span class="p">)</span>
+        <span class="n">parameters</span><span class="p">,</span> <span class="n">parameter_constraints</span><span class="p">,</span> <span class="n">_obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space_to_sqa</span><span class="p">(</span>
             <span class="n">generator_run</span><span class="o">.</span><span class="n">search_space</span>
         <span class="p">)</span>
+        <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj_to_sqa</span><span class="p">)</span>
 
         <span class="n">best_arm_name</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">best_arm_parameters</span> <span class="o">=</span> <span class="kc">None</span>
@@ -625,8 +678,7 @@ src="/js/documentation_options.js">
         <span class="n">generator_run_class</span><span class="p">:</span> <span class="n">SQAGeneratorRun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span>
             <span class="n">GeneratorRun</span>
         <span class="p">]</span>
-        <span class="c1"># pyre-fixme[29]: `SQAGeneratorRun` is not a function.</span>
-        <span class="k">return</span> <span class="n">generator_run_class</span><span class="p">(</span>
+        <span class="n">gr_sqa</span> <span class="o">=</span> <span class="n">generator_run_class</span><span class="p">(</span>  <span class="c1"># pyre-ignore[29]: `SQAGeneratorRun` not a func.</span>
             <span class="n">arms</span><span class="o">=</span><span class="n">arms</span><span class="p">,</span>
             <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">,</span>
             <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
@@ -650,11 +702,13 @@ src="/js/documentation_options.js">
             <span class="n">candidate_metadata_by_arm_signature</span><span class="o">=</span><span class="n">object_to_json</span><span class="p">(</span>
                 <span class="n">generator_run</span><span class="o">.</span><span class="n">_candidate_metadata_by_arm_signature</span>
             <span class="p">),</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">generator_run</span><span class="p">,</span> <span class="n">gr_sqa</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">gr_sqa</span><span class="p">,</span> <span class="n">obj_to_sqa</span></div>
 
 <div class="viewcode-block" id="Encoder.generation_strategy_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.generation_strategy_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">generation_strategy_to_sqa</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">generation_strategy</span><span class="p">:</span> <span class="n">GenerationStrategy</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SQAGenerationStrategy</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SQAGenerationStrategy</span><span class="p">,</span> <span class="n">T_OBJ_TO_SQA</span><span class="p">]:</span>
         <span class="sd">"""Convert an Ax `GenerationStrategy` to SQLAlchemy, preserving its state,</span>
 <span class="sd">        so that the restored generation strategy can be resumed from the point</span>
 <span class="sd">        at which it was interrupted and stored.</span>
@@ -663,17 +717,23 @@ src="/js/documentation_options.js">
         <span class="n">gs_class</span><span class="p">:</span> <span class="n">SQAGenerationStrategy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span>
             <span class="n">cast</span><span class="p">(</span><span class="n">Type</span><span class="p">[</span><span class="n">Base</span><span class="p">],</span> <span class="n">GenerationStrategy</span><span class="p">)</span>
         <span class="p">]</span>
+        <span class="n">generator_runs_sqa</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">obj_to_sqa</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">gr</span> <span class="ow">in</span> <span class="n">generation_strategy</span><span class="o">.</span><span class="n">_generator_runs</span><span class="p">:</span>
+            <span class="n">gr_sqa</span><span class="p">,</span> <span class="n">_obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_to_sqa</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span>
+            <span class="n">generator_runs_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gr_sqa</span><span class="p">)</span>
+            <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj_to_sqa</span><span class="p">)</span>
+
         <span class="c1"># pyre-fixme[29]: `SQAGenerationStrategy` is not a function.</span>
-        <span class="k">return</span> <span class="n">gs_class</span><span class="p">(</span>
+        <span class="n">gs_sqa</span> <span class="o">=</span> <span class="n">gs_class</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="n">steps</span><span class="o">=</span><span class="n">object_to_json</span><span class="p">(</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">_steps</span><span class="p">),</span>
             <span class="n">curr_index</span><span class="o">=</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">_curr</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
-            <span class="n">generator_runs</span><span class="o">=</span><span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_to_sqa</span><span class="p">(</span><span class="n">gr</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">gr</span> <span class="ow">in</span> <span class="n">generation_strategy</span><span class="o">.</span><span class="n">_generator_runs</span>
-            <span class="p">],</span>
+            <span class="n">generator_runs</span><span class="o">=</span><span class="n">generator_runs_sqa</span><span class="p">,</span>
             <span class="n">experiment_id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">generation_strategy</span><span class="p">,</span> <span class="n">gs_sqa</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">gs_sqa</span><span class="p">,</span> <span class="n">obj_to_sqa</span></div>
 
 <div class="viewcode-block" id="Encoder.runner_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.runner_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">runner_to_sqa</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="n">Runner</span><span class="p">,</span> <span class="n">trial_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -697,30 +757,45 @@ src="/js/documentation_options.js">
             <span class="n">runner_type</span><span class="o">=</span><span class="n">runner_type</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">,</span> <span class="n">trial_type</span><span class="o">=</span><span class="n">trial_type</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="Encoder.trial_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.trial_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">trial_to_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">BaseTrial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SQATrial</span><span class="p">:</span>
-        <span class="sd">"""Convert Ax Trial to SQLAlchemy.</span>
+<div class="viewcode-block" id="Encoder.trial_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.trial_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">trial_to_sqa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">BaseTrial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SQATrial</span><span class="p">,</span> <span class="n">T_OBJ_TO_SQA</span><span class="p">]:</span>
+        <span class="sd">"""Convert Ax Trial to SQLAlchemy and compile a list of (object,</span>
+<span class="sd">        sqa_counterpart) tuples to set `db_id` on user-facing classes after</span>
+<span class="sd">        the conversion is complete and the SQL session is flushed (SQLAlchemy</span>
+<span class="sd">        classes receive their `id` attributes during `session.flush()`).</span>
 
 <span class="sd">        In addition to creating and storing a new Trial object, we need to</span>
 <span class="sd">        create and store the GeneratorRuns and Runner that it owns.</span>
 <span class="sd">        """</span>
-        <span class="c1"># pyre-fixme[6]: Expected `Runner` for 1st param but got `Optional[Runner]`.</span>
-        <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner_to_sqa</span><span class="p">(</span><span class="n">runner</span><span class="o">=</span><span class="n">trial</span><span class="o">.</span><span class="n">runner</span><span class="p">)</span> <span class="k">if</span> <span class="n">trial</span><span class="o">.</span><span class="n">runner</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">obj_to_sqa</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">runner</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">trial</span><span class="o">.</span><span class="n">runner</span><span class="p">:</span>
+            <span class="n">runner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runner_to_sqa</span><span class="p">(</span><span class="n">runner</span><span class="o">=</span><span class="n">not_none</span><span class="p">(</span><span class="n">trial</span><span class="o">.</span><span class="n">runner</span><span class="p">))</span>
+            <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">trial</span><span class="o">.</span><span class="n">runner</span><span class="p">,</span> <span class="n">runner</span><span class="p">))</span>
+
         <span class="n">abandoned_arms</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">generator_runs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">status_quo_name</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">optimize_for_power</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="n">BatchTrial</span><span class="p">):</span>
-            <span class="n">abandoned_arms</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">abandoned_arm_to_sqa</span><span class="p">(</span><span class="n">abandoned_arm</span><span class="o">=</span><span class="n">abandoned_arm</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">abandoned_arm</span> <span class="ow">in</span> <span class="n">trial</span><span class="o">.</span><span class="n">abandoned_arms_metadata</span>
-            <span class="p">]</span>
-            <span class="n">generator_runs</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_to_sqa</span><span class="p">(</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="n">Trial</span><span class="p">)</span> <span class="ow">and</span> <span class="n">trial</span><span class="o">.</span><span class="n">generator_run</span><span class="p">:</span>
+            <span class="n">gr_sqa</span><span class="p">,</span> <span class="n">_obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_to_sqa</span><span class="p">(</span>
+                <span class="n">generator_run</span><span class="o">=</span><span class="n">not_none</span><span class="p">(</span><span class="n">trial</span><span class="o">.</span><span class="n">generator_run</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">generator_runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gr_sqa</span><span class="p">)</span>
+            <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj_to_sqa</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="n">BatchTrial</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">abandoned_arm</span> <span class="ow">in</span> <span class="n">trial</span><span class="o">.</span><span class="n">abandoned_arms_metadata</span><span class="p">:</span>
+                <span class="n">abandoned_arms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">abandoned_arm_to_sqa</span><span class="p">(</span><span class="n">abandoned_arm</span><span class="o">=</span><span class="n">abandoned_arm</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">struct</span> <span class="ow">in</span> <span class="n">trial</span><span class="o">.</span><span class="n">generator_run_structs</span><span class="p">:</span>
+                <span class="n">gr_sqa</span><span class="p">,</span> <span class="n">_obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_to_sqa</span><span class="p">(</span>
                     <span class="n">generator_run</span><span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">generator_run</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">weight</span>
                 <span class="p">)</span>
-                <span class="k">for</span> <span class="n">struct</span> <span class="ow">in</span> <span class="n">trial</span><span class="o">.</span><span class="n">generator_run_structs</span>
-            <span class="p">]</span>
-            <span class="c1"># appease pyre</span>
+                <span class="n">generator_runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gr_sqa</span><span class="p">)</span>
+                <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj_to_sqa</span><span class="p">)</span>
+
             <span class="n">trial_status_quo</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">status_quo</span>
             <span class="n">trial_status_quo_weight_override</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">_status_quo_weight_override</span>
             <span class="k">if</span> <span class="p">(</span>
@@ -732,33 +807,25 @@ src="/js/documentation_options.js">
                     <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="n">trial_status_quo_weight_override</span><span class="p">],</span>
                     <span class="nb">type</span><span class="o">=</span><span class="n">GeneratorRunType</span><span class="o">.</span><span class="n">STATUS_QUO</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="c1"># this is a hack necessary to get equality tests passing;</span>
-                <span class="c1"># otherwise you can encode same object and get two different results</span>
+                <span class="c1"># This is a hack necessary to get equality tests passing;</span>
+                <span class="c1"># otherwise you can encode same object and get two different results.</span>
                 <span class="n">status_quo_generator_run</span><span class="o">.</span><span class="n">_time_created</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">time_created</span>
-                <span class="n">generator_runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_to_sqa</span><span class="p">(</span><span class="n">generator_run</span><span class="o">=</span><span class="n">status_quo_generator_run</span><span class="p">)</span>
+                <span class="n">gr_sqa</span><span class="p">,</span> <span class="n">_obj_to_sqa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_to_sqa</span><span class="p">(</span>
+                    <span class="n">generator_run</span><span class="o">=</span><span class="n">status_quo_generator_run</span>
                 <span class="p">)</span>
+                <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_obj_to_sqa</span><span class="p">)</span>
+                <span class="n">generator_runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gr_sqa</span><span class="p">)</span>
                 <span class="n">status_quo_name</span> <span class="o">=</span> <span class="n">trial_status_quo</span><span class="o">.</span><span class="n">name</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="s2">"optimize_for_power"</span><span class="p">):</span>
-                <span class="n">optimize_for_power</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">optimize_for_power</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">optimize_for_power</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">optimize_for_power</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="s2">"optimize_for_power"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">optimize_for_power</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"optimize_for_power not present in BatchTrial: </span><span class="si">{</span><span class="n">trial</span><span class="o">.</span><span class="vm">__dict__</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="n">Trial</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">trial</span><span class="o">.</span><span class="n">generator_run</span><span class="p">:</span>
-                <span class="n">generator_runs</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="c1"># pyre-fixme[6]: Expected `GeneratorRun` for 1st param but got</span>
-                    <span class="c1">#  `Optional[GeneratorRun]`.</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">generator_run_to_sqa</span><span class="p">(</span><span class="n">generator_run</span><span class="o">=</span><span class="n">trial</span><span class="o">.</span><span class="n">generator_run</span><span class="p">)</span>
-                <span class="p">]</span>
-
-        <span class="c1"># pyre-fixme: Expected `Base` for 1st...ot `typing.Type[Trial]`.</span>
+        <span class="c1"># pyre-ignore[9]: Expected `Base` for 1st...ot `typing.Type[Trial]`.</span>
         <span class="n">trial_class</span><span class="p">:</span> <span class="n">SQATrial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">class_to_sqa_class</span><span class="p">[</span><span class="n">Trial</span><span class="p">]</span>
-        <span class="c1"># pyre-fixme[29]: `SQATrial` is not a function.</span>
-        <span class="k">return</span> <span class="n">trial_class</span><span class="p">(</span>
+        <span class="n">trial_sqa</span> <span class="o">=</span> <span class="n">trial_class</span><span class="p">(</span>  <span class="c1"># pyre-fixme[29]: `SQATrial` is not a function.</span>
             <span class="n">abandoned_reason</span><span class="o">=</span><span class="n">trial</span><span class="o">.</span><span class="n">abandoned_reason</span><span class="p">,</span>
             <span class="n">deployed_name</span><span class="o">=</span><span class="n">trial</span><span class="o">.</span><span class="n">deployed_name</span><span class="p">,</span>
             <span class="n">index</span><span class="o">=</span><span class="n">trial</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
@@ -779,7 +846,9 @@ src="/js/documentation_options.js">
             <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
             <span class="n">generation_step_index</span><span class="o">=</span><span class="n">trial</span><span class="o">.</span><span class="n">_generation_step_index</span><span class="p">,</span>
             <span class="n">properties</span><span class="o">=</span><span class="n">trial</span><span class="o">.</span><span class="n">_properties</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+        <span class="n">obj_to_sqa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">trial</span><span class="p">,</span> <span class="n">trial_sqa</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">trial_sqa</span><span class="p">,</span> <span class="n">obj_to_sqa</span></div>
 
 <div class="viewcode-block" id="Encoder.data_to_sqa"><a class="viewcode-back" href="../../../../storage.html#ax.storage.sqa_store.encoder.Encoder.data_to_sqa">[docs]</a>    <span class="k">def</span> <span class="nf">data_to_sqa</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">,</span> <span class="n">trial_index</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">timestamp</span><span class="p">:</span> <span class="nb">int</span>

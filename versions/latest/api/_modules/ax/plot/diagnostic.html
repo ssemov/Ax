@@ -53,8 +53,6 @@ src="/js/documentation_options.js">
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">ax.plot.scatter</span> <span class="kn">import</span> <span class="n">_error_scatter_data</span><span class="p">,</span> <span class="n">_error_scatter_trace</span>
 <span class="kn">from</span> <span class="nn">ax.utils.common.typeutils</span> <span class="kn">import</span> <span class="n">not_none</span>
-
-<span class="c1"># pyre-fixme[21]: Could not find name `subplots` in `plotly`.</span>
 <span class="kn">from</span> <span class="nn">plotly</span> <span class="kn">import</span> <span class="n">subplots</span>
 
 
@@ -478,7 +476,6 @@ src="/js/documentation_options.js">
     <span class="c1"># make subplots (2 plots per row)</span>
     <span class="n">nrows</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
     <span class="n">ncols</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">metrics</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="c1"># pyre-fixme[16]: Module `plotly` has no attribute `subplots`.</span>
     <span class="n">fig</span> <span class="o">=</span> <span class="n">subplots</span><span class="o">.</span><span class="n">make_subplots</span><span class="p">(</span>
         <span class="n">rows</span><span class="o">=</span><span class="n">nrows</span><span class="p">,</span>
         <span class="n">cols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span>

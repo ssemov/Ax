@@ -148,6 +148,7 @@ src="/js/documentation_options.js">
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">objective_thresholds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="c1"># pyre-fixme[35]: Target cannot be annotated.</span>
         <span class="n">objective_thresholds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">objective_thresholds</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">objective_thresholds</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="p">)</span>

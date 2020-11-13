@@ -539,7 +539,6 @@ src="/js/documentation_options.js">
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">combine_with_last_data</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_trial_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">last_ts</span><span class="p">,</span> <span class="n">last_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">current_trial_data</span><span class="o">.</span><span class="n">items</span><span class="p">())[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `merge`.</span>
                 <span class="n">merged</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
                     <span class="n">last_data</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
                     <span class="n">trial_df</span><span class="p">,</span>
@@ -649,10 +648,10 @@ src="/js/documentation_options.js">
 
 <span class="sd">        Args:</span>
 <span class="sd">            generator_run: GeneratorRun, associated with this trial.</span>
-<span class="sd">                Trial has only one generator run (and thus arm)</span>
-<span class="sd">                attached to it. This can also be set later through `add_arm`</span>
-<span class="sd">                or `add_generator_run`, but a trial's associated generator run is</span>
-<span class="sd">                immutable once set.</span>
+<span class="sd">                Trial has only one arm attached to it and this generator_run</span>
+<span class="sd">                must therefore contain one arm. This arm can also be set later</span>
+<span class="sd">                through `add_arm` or `add_generator_run`, but a trial's</span>
+<span class="sd">                associated generator run is immutable once set.</span>
 <span class="sd">            trial_type: Type of this trial, if used in MultiTypeExperiment.</span>
 <span class="sd">            ttl_seconds: If specified, trials will be considered failed after</span>
 <span class="sd">                this many seconds since the time the trial was ran, unless the</span>

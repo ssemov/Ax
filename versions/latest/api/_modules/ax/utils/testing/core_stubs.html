@@ -912,7 +912,6 @@ src="/js/documentation_options.js">
         <span class="s2">"sem"</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.40</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span>
         <span class="s2">"n"</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span>
     <span class="p">}</span>
-    <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
     <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">df_dict</span><span class="p">))</span></div>
 
 
@@ -927,13 +926,11 @@ src="/js/documentation_options.js">
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">trial_index</span> <span class="ow">in</span> <span class="p">(</span><span class="n">trial_indices</span> <span class="ow">or</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="p">]</span>
-    <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
     <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">df_dicts</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="get_branin_data_batch"><a class="viewcode-back" href="../../../../utils.html#ax.utils.testing.core_stubs.get_branin_data_batch">[docs]</a><span class="k">def</span> <span class="nf">get_branin_data_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="n">BatchTrial</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Data</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">Data</span><span class="p">(</span>
-        <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">"arm_name"</span><span class="p">:</span> <span class="p">[</span><span class="n">arm</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">arm</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">arms</span><span class="p">],</span>
@@ -964,7 +961,6 @@ src="/js/documentation_options.js">
         <span class="k">for</span> <span class="n">trial_index</span> <span class="ow">in</span> <span class="p">(</span><span class="n">trial_indices</span> <span class="ow">or</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">]</span>
     <span class="p">]</span>
-    <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
     <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">df_dicts</span><span class="p">))</span></div>
 
 

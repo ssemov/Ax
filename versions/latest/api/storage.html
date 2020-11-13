@@ -377,18 +377,37 @@ For even more flexibility, create a subclass.</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.decoder.Decoder.experiment_from_sqa">
-<code class="sig-name descname">experiment_from_sqa</code><span class="sig-paren">(</span><em class="sig-param">experiment_sqa: ax.storage.sqa_store.sqa_classes.SQAExperiment</em><span class="sig-paren">)</span> → ax.core.experiment.Experiment<a class="reference internal" href="_modules/ax/storage/sqa_store/decoder.html#Decoder.experiment_from_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.decoder.Decoder.experiment_from_sqa" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">experiment_from_sqa</code><span class="sig-paren">(</span><em class="sig-param">experiment_sqa: ax.storage.sqa_store.sqa_classes.SQAExperiment</em>, <em class="sig-param">reduced_state: bool = False</em><span class="sig-paren">)</span> → ax.core.experiment.Experiment<a class="reference internal" href="_modules/ax/storage/sqa_store/decoder.html#Decoder.experiment_from_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.decoder.Decoder.experiment_from_sqa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert SQLAlchemy Experiment to Ax Experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_sqa</strong> – <cite>SQAExperiment</cite> to decode.</p></li>
+<li><p><strong>reduced_state</strong> – Whether to load experiment with a slightly reduced state
+(without abandoned arms on experiment and without model state,
+search space, and optimization config on generator runs).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.decoder.Decoder.generation_strategy_from_sqa">
-<code class="sig-name descname">generation_strategy_from_sqa</code><span class="sig-paren">(</span><em class="sig-param">gs_sqa: ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy</em><span class="sig-paren">)</span> → ax.modelbridge.generation_strategy.GenerationStrategy<a class="reference internal" href="_modules/ax/storage/sqa_store/decoder.html#Decoder.generation_strategy_from_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.decoder.Decoder.generation_strategy_from_sqa" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generation_strategy_from_sqa</code><span class="sig-paren">(</span><em class="sig-param">gs_sqa: ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy</em>, <em class="sig-param">experiment: Optional[ax.core.experiment.Experiment] = None</em>, <em class="sig-param">reduced_state: bool = False</em><span class="sig-paren">)</span> → ax.modelbridge.generation_strategy.GenerationStrategy<a class="reference internal" href="_modules/ax/storage/sqa_store/decoder.html#Decoder.generation_strategy_from_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.decoder.Decoder.generation_strategy_from_sqa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert SQALchemy generation strategy to Ax <cite>GenerationStrategy</cite>.</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.decoder.Decoder.generator_run_from_sqa">
-<code class="sig-name descname">generator_run_from_sqa</code><span class="sig-paren">(</span><em class="sig-param">generator_run_sqa: ax.storage.sqa_store.sqa_classes.SQAGeneratorRun</em><span class="sig-paren">)</span> → ax.core.generator_run.GeneratorRun<a class="reference internal" href="_modules/ax/storage/sqa_store/decoder.html#Decoder.generator_run_from_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.decoder.Decoder.generator_run_from_sqa" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generator_run_from_sqa</code><span class="sig-paren">(</span><em class="sig-param">generator_run_sqa: ax.storage.sqa_store.sqa_classes.SQAGeneratorRun</em>, <em class="sig-param">reduced_state: bool = False</em><span class="sig-paren">)</span> → ax.core.generator_run.GeneratorRun<a class="reference internal" href="_modules/ax/storage/sqa_store/decoder.html#Decoder.generator_run_from_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.decoder.Decoder.generator_run_from_sqa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert SQLAlchemy GeneratorRun to Ax GeneratorRun.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>generator_run_sqa</strong> – <cite>SQAGeneratorRun</cite> to decode.</p></li>
+<li><p><strong>reduced_state</strong> – Whether to load generator runs with a slightly reduced state</p></li>
+<li><p><strong>model state</strong><strong>, </strong><strong>search space</strong><strong>, </strong><strong>and optimization config</strong><strong>)</strong><strong></strong> (<em>(</em><em>without</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.decoder.Decoder.get_enum_name">
@@ -436,8 +455,17 @@ Ax SearchSpace.</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.decoder.Decoder.trial_from_sqa">
-<code class="sig-name descname">trial_from_sqa</code><span class="sig-paren">(</span><em class="sig-param">trial_sqa: ax.storage.sqa_store.sqa_classes.SQATrial</em>, <em class="sig-param">experiment: ax.core.experiment.Experiment</em><span class="sig-paren">)</span> → ax.core.base_trial.BaseTrial<a class="reference internal" href="_modules/ax/storage/sqa_store/decoder.html#Decoder.trial_from_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.decoder.Decoder.trial_from_sqa" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">trial_from_sqa</code><span class="sig-paren">(</span><em class="sig-param">trial_sqa: ax.storage.sqa_store.sqa_classes.SQATrial</em>, <em class="sig-param">experiment: ax.core.experiment.Experiment</em>, <em class="sig-param">reduced_state: bool = False</em><span class="sig-paren">)</span> → ax.core.base_trial.BaseTrial<a class="reference internal" href="_modules/ax/storage/sqa_store/decoder.html#Decoder.trial_from_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.decoder.Decoder.trial_from_sqa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert SQLAlchemy Trial to Ax Trial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>trial_sqa</strong> – <cite>SQATrial</cite> to decode.</p></li>
+<li><p><strong>reduced_state</strong> – Whether to load trial’s generator run(s) with a slightly</p></li>
+<li><p><strong>state</strong> (<em>reduced</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 </dd></dl>
 </div>
@@ -472,23 +500,29 @@ For even more flexibility, create a subclass.</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.encoder.Encoder.experiment_to_sqa">
-<code class="sig-name descname">experiment_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">experiment: ax.core.experiment.Experiment</em><span class="sig-paren">)</span> → ax.storage.sqa_store.sqa_classes.SQAExperiment<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.experiment_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.experiment_to_sqa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert Ax Experiment to SQLAlchemy.</p>
+<code class="sig-name descname">experiment_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">experiment: ax.core.experiment.Experiment</em><span class="sig-paren">)</span> → Tuple[ax.storage.sqa_store.sqa_classes.SQAExperiment, List[Tuple[ax.utils.common.base.Base, ax.storage.sqa_store.db.SQABase]]]<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.experiment_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.experiment_to_sqa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Ax Experiment to SQLAlchemy and compile a list of (object,
+sqa_counterpart) tuples to set <cite>db_id</cite> on user-facing classes after
+the conversion is complete and the SQL session is flushed (SQLAlchemy
+classes receive their <cite>id</cite> attributes during <cite>session.flush()</cite>).</p>
 <p>In addition to creating and storing a new Experiment object, we need to
 create and store copies of the Trials, Metrics, Parameters,
 ParameterConstraints, and Runner owned by this Experiment.</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.encoder.Encoder.generation_strategy_to_sqa">
-<code class="sig-name descname">generation_strategy_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">generation_strategy: ax.modelbridge.generation_strategy.GenerationStrategy, experiment_id: Optional[int]</em><span class="sig-paren">)</span> → ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.generation_strategy_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.generation_strategy_to_sqa" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generation_strategy_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">generation_strategy: ax.modelbridge.generation_strategy.GenerationStrategy, experiment_id: Optional[int]</em><span class="sig-paren">)</span> → Tuple[ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy, List[Tuple[ax.utils.common.base.Base, ax.storage.sqa_store.db.SQABase]]]<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.generation_strategy_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.generation_strategy_to_sqa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert an Ax <cite>GenerationStrategy</cite> to SQLAlchemy, preserving its state,
 so that the restored generation strategy can be resumed from the point
 at which it was interrupted and stored.</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.encoder.Encoder.generator_run_to_sqa">
-<code class="sig-name descname">generator_run_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">generator_run: ax.core.generator_run.GeneratorRun</em>, <em class="sig-param">weight: Optional[float] = None</em><span class="sig-paren">)</span> → ax.storage.sqa_store.sqa_classes.SQAGeneratorRun<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.generator_run_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.generator_run_to_sqa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert Ax GeneratorRun to SQLAlchemy.</p>
+<code class="sig-name descname">generator_run_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">generator_run: ax.core.generator_run.GeneratorRun</em>, <em class="sig-param">weight: Optional[float] = None</em><span class="sig-paren">)</span> → Tuple[ax.storage.sqa_store.sqa_classes.SQAGeneratorRun, List[Tuple[ax.utils.common.base.Base, ax.storage.sqa_store.db.SQABase]]]<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.generator_run_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.generator_run_to_sqa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Ax GeneratorRun to SQLAlchemy and compile a list of (object,
+sqa_counterpart) tuples to set <cite>db_id</cite> on user-facing classes after
+the conversion is complete and the SQL session is flushed (SQLAlchemy
+classes receive their <cite>id</cite> attributes during <cite>session.flush()</cite>).</p>
 <p>In addition to creating and storing a new GeneratorRun object, we need to
 create and store copies of the Arms, Metrics, Parameters, and
 ParameterConstraints owned by this GeneratorRun.</p>
@@ -514,11 +548,16 @@ json blob.</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.encoder.Encoder.multi_objective_to_sqa">
-<code class="sig-name descname">multi_objective_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">objective: ax.core.objective.MultiObjective</em><span class="sig-paren">)</span> → ax.storage.sqa_store.sqa_classes.SQAMetric<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.multi_objective_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.multi_objective_to_sqa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert Ax Multi Objective to SQLAlchemy. Returns a parent
-SQAMetric, whose children are the SQAMetrics corresponding to
-metrics attribute of MultiObjective. The parent is used as a placeholder
-for storage purposes.</p>
+<code class="sig-name descname">multi_objective_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">objective: ax.core.objective.MultiObjective</em><span class="sig-paren">)</span> → Tuple[ax.storage.sqa_store.sqa_classes.SQAMetric, List[Tuple[ax.utils.common.base.Base, ax.storage.sqa_store.db.SQABase]]]<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.multi_objective_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.multi_objective_to_sqa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Ax Multi Objective to SQLAlchemy and compile a list of (object,
+sqa_counterpart) tuples to set <cite>db_id</cite> on user-facing classes after
+the conversion is complete and the SQL session is flushed (SQLAlchemy
+classes receive their <cite>id</cite> attributes during <cite>session.flush()</cite>).</p>
+<dl class="simple">
+<dt>Returns: A parent <cite>SQAMetric</cite>, whose children are the <cite>SQAMetric</cite>-s</dt><dd><p>corresponding to <cite>metrics</cite> attribute of <cite>MultiObjective</cite>.
+NOTE: The parent is used as a placeholder for storage purposes.</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.encoder.Encoder.objective_threshold_to_sqa">
@@ -527,13 +566,20 @@ for storage purposes.</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.encoder.Encoder.objective_to_sqa">
-<code class="sig-name descname">objective_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">objective: ax.core.objective.Objective</em><span class="sig-paren">)</span> → ax.storage.sqa_store.sqa_classes.SQAMetric<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.objective_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.objective_to_sqa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert Ax Objective to SQLAlchemy.</p>
+<code class="sig-name descname">objective_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">objective: ax.core.objective.Objective</em><span class="sig-paren">)</span> → Tuple[ax.storage.sqa_store.sqa_classes.SQAMetric, List[Tuple[ax.utils.common.base.Base, ax.storage.sqa_store.db.SQABase]]]<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.objective_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.objective_to_sqa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Ax Objective to SQLAlchemy and compile a list of (object,
+sqa_counterpart) tuples to set <cite>db_id</cite> on user-facing classes after
+the conversion is complete and the SQL session is flushed (SQLAlchemy
+classes receive their <cite>id</cite> attributes during <cite>session.flush()</cite>).</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.encoder.Encoder.optimization_config_to_sqa">
-<code class="sig-name descname">optimization_config_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">optimization_config: Optional[ax.core.optimization_config.OptimizationConfig]</em><span class="sig-paren">)</span> → List[ax.storage.sqa_store.sqa_classes.SQAMetric]<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.optimization_config_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.optimization_config_to_sqa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert Ax OptimizationConfig to a list of SQLAlchemy Metrics.</p>
+<code class="sig-name descname">optimization_config_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">optimization_config: Optional[ax.core.optimization_config.OptimizationConfig]</em><span class="sig-paren">)</span> → Tuple[List[ax.storage.sqa_store.sqa_classes.SQAMetric], List[Tuple[ax.utils.common.base.Base, ax.storage.sqa_store.db.SQABase]]]<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.optimization_config_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.optimization_config_to_sqa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Ax OptimizationConfig to a list of SQLAlchemy Metrics
+and compile a list of (object, sqa_counterpart) tuples to set <cite>db_id</cite>
+on user-facing classes after the conversion is complete and the SQL
+session is flushed (SQLAlchemy classes receive their <cite>id</cite> attributes
+during <cite>session.flush()</cite>).</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.encoder.Encoder.outcome_constraint_to_sqa">
@@ -557,22 +603,33 @@ for storage purposes.</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.encoder.Encoder.scalarized_objective_to_sqa">
-<code class="sig-name descname">scalarized_objective_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">objective: ax.core.objective.ScalarizedObjective</em><span class="sig-paren">)</span> → ax.storage.sqa_store.sqa_classes.SQAMetric<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.scalarized_objective_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.scalarized_objective_to_sqa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert Ax Scalarized Objective to SQLAlchemy. Returns a parent
-SQAMetric, whose children are the SQAMetrics corresponding to
-metrics attribute of Scalarized Objective. The parent is used as a placeholder
-for storage purposes.</p>
+<code class="sig-name descname">scalarized_objective_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">objective: ax.core.objective.ScalarizedObjective</em><span class="sig-paren">)</span> → Tuple[ax.storage.sqa_store.sqa_classes.SQAMetric, List[Tuple[ax.utils.common.base.Base, ax.storage.sqa_store.db.SQABase]]]<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.scalarized_objective_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.scalarized_objective_to_sqa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Ax Scalarized Objective to SQLAlchemy and compile a list of
+(object, sqa_counterpart) tuples to set <cite>db_id</cite> on user-facing classes after
+the conversion is complete and the SQL session is flushed (SQLAlchemy
+classes receive their <cite>id</cite> attributes during <cite>session.flush()</cite>).</p>
+<dl class="simple">
+<dt>Returns: A parent <cite>SQAMetric</cite>, whose children are the <cite>SQAMetric</cite>-s</dt><dd><p>corresponding to <cite>metrics</cite> attribute of <cite>ScalarizedObjective</cite>.
+NOTE: The parent is used as a placeholder for storage purposes.</p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.encoder.Encoder.search_space_to_sqa">
-<code class="sig-name descname">search_space_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">search_space: Optional[ax.core.search_space.SearchSpace]</em><span class="sig-paren">)</span> → Tuple[List[ax.storage.sqa_store.sqa_classes.SQAParameter], List[ax.storage.sqa_store.sqa_classes.SQAParameterConstraint]]<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.search_space_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.search_space_to_sqa" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">search_space_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">search_space: Optional[ax.core.search_space.SearchSpace]</em><span class="sig-paren">)</span> → Tuple[List[ax.storage.sqa_store.sqa_classes.SQAParameter], List[ax.storage.sqa_store.sqa_classes.SQAParameterConstraint], List[Tuple[ax.utils.common.base.Base, ax.storage.sqa_store.db.SQABase]]]<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.search_space_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.search_space_to_sqa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert Ax SearchSpace to a list of SQLAlchemy Parameters and
-ParameterConstraints.</p>
+ParameterConstraints and compile a list of (object,
+sqa_counterpart) tuples to set <cite>db_id</cite> on user-facing classes after
+the conversion is complete and the SQL session is flushed (SQLAlchemy
+classes receive their <cite>id</cite> attributes during <cite>session.flush()</cite>).</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.storage.sqa_store.encoder.Encoder.trial_to_sqa">
-<code class="sig-name descname">trial_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">trial: ax.core.base_trial.BaseTrial</em><span class="sig-paren">)</span> → ax.storage.sqa_store.sqa_classes.SQATrial<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.trial_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.trial_to_sqa" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert Ax Trial to SQLAlchemy.</p>
+<code class="sig-name descname">trial_to_sqa</code><span class="sig-paren">(</span><em class="sig-param">trial: ax.core.base_trial.BaseTrial</em><span class="sig-paren">)</span> → Tuple[ax.storage.sqa_store.sqa_classes.SQATrial, List[Tuple[ax.utils.common.base.Base, ax.storage.sqa_store.db.SQABase]]]<a class="reference internal" href="_modules/ax/storage/sqa_store/encoder.html#Encoder.trial_to_sqa"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.encoder.Encoder.trial_to_sqa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert Ax Trial to SQLAlchemy and compile a list of (object,
+sqa_counterpart) tuples to set <cite>db_id</cite> on user-facing classes after
+the conversion is complete and the SQL session is flushed (SQLAlchemy
+classes receive their <cite>id</cite> attributes during <cite>session.flush()</cite>).</p>
 <p>In addition to creating and storing a new Trial object, we need to
 create and store the GeneratorRuns and Runner that it owns.</p>
 </dd></dl>
@@ -916,18 +973,30 @@ the “process_bind_param” method of this class.</p>
 <span id="ax-storage-sqa-store-load-module"></span><h3>ax.storage.sqa_store.load module<a class="headerlink" href="#module-ax.storage.sqa_store.load" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="ax.storage.sqa_store.load.load_experiment">
-<code class="sig-prename descclassname">ax.storage.sqa_store.load.</code><code class="sig-name descname">load_experiment</code><span class="sig-paren">(</span><em class="sig-param">experiment_name: str</em>, <em class="sig-param">config: Optional[ax.storage.sqa_store.sqa_config.SQAConfig] = None</em><span class="sig-paren">)</span> → ax.core.experiment.Experiment<a class="reference internal" href="_modules/ax/storage/sqa_store/load.html#load_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.load.load_experiment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load experiment by name (uses default SQAConfig).</p>
+<code class="sig-prename descclassname">ax.storage.sqa_store.load.</code><code class="sig-name descname">load_experiment</code><span class="sig-paren">(</span><em class="sig-param">experiment_name: str</em>, <em class="sig-param">config: Optional[ax.storage.sqa_store.sqa_config.SQAConfig] = None</em>, <em class="sig-param">reduced_state: bool = False</em><span class="sig-paren">)</span> → ax.core.experiment.Experiment<a class="reference internal" href="_modules/ax/storage/sqa_store/load.html#load_experiment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.load.load_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load experiment by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>experiment_name</strong> – Name of the expeirment to load.</p></li>
+<li><p><strong>config</strong> – <cite>SQAConfig</cite>, from which to retrieve the decoder. Optional,
+defaults to base <cite>SQAConfig</cite>.</p></li>
+<li><p><strong>reduced_state</strong> – Whether to load experiment with a slightly reduced state
+(without abandoned arms on experiment and withoug model state,
+search space, and optimization config on generator runs).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 <dl class="function">
 <dt id="ax.storage.sqa_store.load.load_generation_strategy_by_experiment_name">
-<code class="sig-prename descclassname">ax.storage.sqa_store.load.</code><code class="sig-name descname">load_generation_strategy_by_experiment_name</code><span class="sig-paren">(</span><em class="sig-param">experiment_name: str</em>, <em class="sig-param">config: Optional[ax.storage.sqa_store.sqa_config.SQAConfig] = None</em><span class="sig-paren">)</span> → ax.modelbridge.generation_strategy.GenerationStrategy<a class="reference internal" href="_modules/ax/storage/sqa_store/load.html#load_generation_strategy_by_experiment_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.load.load_generation_strategy_by_experiment_name" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ax.storage.sqa_store.load.</code><code class="sig-name descname">load_generation_strategy_by_experiment_name</code><span class="sig-paren">(</span><em class="sig-param">experiment_name: str</em>, <em class="sig-param">config: Optional[ax.storage.sqa_store.sqa_config.SQAConfig] = None</em>, <em class="sig-param">experiment: Optional[ax.core.experiment.Experiment] = None</em>, <em class="sig-param">reduced_state: bool = False</em><span class="sig-paren">)</span> → ax.modelbridge.generation_strategy.GenerationStrategy<a class="reference internal" href="_modules/ax/storage/sqa_store/load.html#load_generation_strategy_by_experiment_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.load.load_generation_strategy_by_experiment_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds a generation strategy attached to an experiment specified by a name
 and restores it from its corresponding SQA object.</p>
 </dd></dl>
 <dl class="function">
 <dt id="ax.storage.sqa_store.load.load_generation_strategy_by_id">
-<code class="sig-prename descclassname">ax.storage.sqa_store.load.</code><code class="sig-name descname">load_generation_strategy_by_id</code><span class="sig-paren">(</span><em class="sig-param">gs_id: int</em>, <em class="sig-param">config: Optional[ax.storage.sqa_store.sqa_config.SQAConfig] = None</em><span class="sig-paren">)</span> → ax.modelbridge.generation_strategy.GenerationStrategy<a class="reference internal" href="_modules/ax/storage/sqa_store/load.html#load_generation_strategy_by_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.load.load_generation_strategy_by_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">ax.storage.sqa_store.load.</code><code class="sig-name descname">load_generation_strategy_by_id</code><span class="sig-paren">(</span><em class="sig-param">gs_id: int</em>, <em class="sig-param">config: Optional[ax.storage.sqa_store.sqa_config.SQAConfig] = None</em>, <em class="sig-param">experiment: Optional[ax.core.experiment.Experiment] = None</em>, <em class="sig-param">reduced_state: bool = False</em><span class="sig-paren">)</span> → ax.modelbridge.generation_strategy.GenerationStrategy<a class="reference internal" href="_modules/ax/storage/sqa_store/load.html#load_generation_strategy_by_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.storage.sqa_store.load.load_generation_strategy_by_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds a generation strategy stored by a given ID and restores it.</p>
 </dd></dl>
 </div>
@@ -1108,7 +1177,7 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.declarative_base</span></code></p>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.data">
-<code class="sig-name descname">data</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAData]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a4e548; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">data</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAData]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa247bc48; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.default_trial_type">
@@ -1124,7 +1193,7 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.generation_strategy">
-<code class="sig-name descname">generation_strategy</code><em class="property">: Optional[ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a4e848; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.generation_strategy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generation_strategy</code><em class="property">: Optional[ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa247bf48; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.generation_strategy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.id">
@@ -1144,7 +1213,7 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.metrics">
-<code class="sig-name descname">metrics</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAMetric]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a4e5c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.metrics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">metrics</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAMetric]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa247bcc8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.metrics" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.name">
@@ -1152,11 +1221,11 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.parameter_constraints">
-<code class="sig-name descname">parameter_constraints</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAParameterConstraint]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a4e6c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.parameter_constraints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parameter_constraints</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAParameterConstraint]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa247bdc8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.parameter_constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.parameters">
-<code class="sig-name descname">parameters</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAParameter]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a4e648; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.parameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parameters</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAParameter]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa247bd48; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.parameters" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.properties">
@@ -1164,7 +1233,7 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.runners">
-<code class="sig-name descname">runners</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQARunner]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a4e748; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.runners" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">runners</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQARunner]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa247be48; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.runners" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.status_quo_name">
@@ -1180,7 +1249,7 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAExperiment.trials">
-<code class="sig-name descname">trials</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQATrial]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a4e7c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.trials" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">trials</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQATrial]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa247bec8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAExperiment.trials" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 <dl class="class">
@@ -1192,16 +1261,12 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <code class="sig-name descname">curr_index</code><em class="property">: int</em><em class="property"> = Column(None, Integer(), table=None, nullable=False)</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy.curr_index" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
-<dt id="ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy.data">
-<code class="sig-name descname">data</code><em class="property">: ax.storage.sqa_store.sqa_classes.SQAData</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a3e848; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy.data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy.experiment_id">
 <code class="sig-name descname">experiment_id</code><em class="property">: Optional[int]</em><em class="property"> = Column(None, Integer(), ForeignKey('experiment_v2.id'), table=None)</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy.experiment_id" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy.generator_runs">
-<code class="sig-name descname">generator_runs</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAGeneratorRun]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a3e7c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy.generator_runs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generator_runs</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAGeneratorRun]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa2465f48; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy.generator_runs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAGenerationStrategy.id">
@@ -1222,7 +1287,7 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.declarative_base</span></code></p>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.arms">
-<code class="sig-name descname">arms</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAArm]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a3e048; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.arms" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">arms</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAArm]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa24657c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.arms" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.best_arm_name">
@@ -1282,7 +1347,7 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.metrics">
-<code class="sig-name descname">metrics</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAMetric]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a3e0c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.metrics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">metrics</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAMetric]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa2465848; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.metrics" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.model_key">
@@ -1302,11 +1367,11 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.parameter_constraints">
-<code class="sig-name descname">parameter_constraints</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAParameterConstraint]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a3e1c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.parameter_constraints" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parameter_constraints</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAParameterConstraint]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa2465948; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.parameter_constraints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.parameters">
-<code class="sig-name descname">parameters</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAParameter]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a3e148; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.parameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parameters</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAParameter]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa24658c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.parameters" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAGeneratorRun.time_created">
@@ -1387,7 +1452,7 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAMetric.scalarized_objective_children_metrics">
-<code class="sig-name descname">scalarized_objective_children_metrics</code><em class="property"> = &lt;RelationshipProperty at 0x7feb48a268c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAMetric.scalarized_objective_children_metrics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scalarized_objective_children_metrics</code><em class="property"> = &lt;RelationshipProperty at 0x7f7fa24650c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQAMetric.scalarized_objective_children_metrics" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQAMetric.scalarized_objective_id">
@@ -1551,7 +1616,7 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.declarative_base</span></code></p>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQATrial.abandoned_arms">
-<code class="sig-name descname">abandoned_arms</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAAbandonedArm]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a4e148; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQATrial.abandoned_arms" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">abandoned_arms</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAAbandonedArm]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa247b848; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQATrial.abandoned_arms" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQATrial.abandoned_reason">
@@ -1571,7 +1636,7 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQATrial.generator_runs">
-<code class="sig-name descname">generator_runs</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAGeneratorRun]</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a4e1c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQATrial.generator_runs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">generator_runs</code><em class="property">: List[ax.storage.sqa_store.sqa_classes.SQAGeneratorRun]</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa247b8c8; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQATrial.generator_runs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQATrial.id">
@@ -1611,7 +1676,7 @@ Either creator or url must be specified as a way to connect to the SQL db.</p>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQATrial.runner">
-<code class="sig-name descname">runner</code><em class="property">: ax.storage.sqa_store.sqa_classes.SQARunner</em><em class="property"> = &lt;RelationshipProperty at 0x7feb48a4e248; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQATrial.runner" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">runner</code><em class="property">: ax.storage.sqa_store.sqa_classes.SQARunner</em><em class="property"> = &lt;RelationshipProperty at 0x7f7fa247b948; no key&gt;</em><a class="headerlink" href="#ax.storage.sqa_store.sqa_classes.SQATrial.runner" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="attribute">
 <dt id="ax.storage.sqa_store.sqa_classes.SQATrial.status">

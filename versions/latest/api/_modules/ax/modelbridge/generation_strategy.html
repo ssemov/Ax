@@ -308,7 +308,6 @@ src="/js/documentation_options.js">
         <span class="k">return</span> <span class="n">trial_indices_by_step</span>
 
     <span class="nd">@property</span>
-    <span class="c1"># pyre-fixme[11]: Annotation `DataFrame` is not defined as a type.</span>
     <span class="k">def</span> <span class="nf">trials_as_df</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
         <span class="sd">"""Puts information on individual trials into a data frame for easy</span>
 <span class="sd">        viewing. For example:</span>
@@ -338,7 +337,6 @@ src="/js/documentation_options.js">
             <span class="k">for</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">trials</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">trial_indices_by_step</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">trial_idx</span> <span class="ow">in</span> <span class="n">trials</span>
         <span class="p">]</span>
-        <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">records</span><span class="p">)</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
                 <span class="s2">"Generation Step"</span><span class="p">,</span>
@@ -498,7 +496,12 @@ src="/js/documentation_options.js">
             <span class="p">)</span>
 
         <span class="n">model</span> <span class="o">=</span> <span class="n">not_none</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">generator_runs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># TODO[T79183560]: Cloning generator runs here is a temporary measure</span>
+        <span class="c1"># to ensure a 1-to-1 correspondence between user-facing generator runs</span>
+        <span class="c1"># and their stored SQL counterparts. This will be no longer needed soon</span>
+        <span class="c1"># as we move to use foreign keys to avoid storing generotor runs on both</span>
+        <span class="c1"># experiment and generation strategy like we do now.</span>
+        <span class="n">generator_run_clones</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_generator_runs</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">generator_run</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">gen</span><span class="p">(</span>
@@ -509,17 +512,17 @@ src="/js/documentation_options.js">
                     <span class="p">),</span>
                 <span class="p">)</span>
                 <span class="n">generator_run</span><span class="o">.</span><span class="n">_generation_step_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_curr</span><span class="o">.</span><span class="n">index</span>
-                <span class="n">generator_runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generator_run</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_generator_runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generator_run</span><span class="p">)</span>
+                <span class="n">generator_run_clones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">generator_run</span><span class="o">.</span><span class="n">clone</span><span class="p">())</span>
             <span class="k">except</span> <span class="n">DataRequiredError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
                 <span class="c1"># Model needs more data, so we log the error and return</span>
                 <span class="c1"># as many generator runs as we were able to produce, unless</span>
                 <span class="c1"># no trials were produced at all (in which case its safe to raise).</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">generator_runs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">generator_run_clones</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">raise</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Model required more data: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_generator_runs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">generator_runs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">generator_runs</span>
+        <span class="k">return</span> <span class="n">generator_run_clones</span>
 
     <span class="c1"># ------------------------- Model selection logic helpers. -------------------------</span>
 

@@ -44,7 +44,6 @@ src="/js/documentation_options.js">
 <span class="kn">from</span> <span class="nn">ax.utils.common.base</span> <span class="kn">import</span> <span class="n">Base</span>
 
 
-<span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `Timestamp`.</span>
 <span class="n">TPdTimestamp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span>
 
 <span class="n">COLUMN_DATA_TYPES</span> <span class="o">=</span> <span class="p">{</span>
@@ -82,7 +81,6 @@ src="/js/documentation_options.js">
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="c1"># pyre-fixme[11]: Annotation `DataFrame` is not defined as a type.</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -95,7 +93,6 @@ src="/js/documentation_options.js">
 <span class="sd">        """</span>
         <span class="c1"># Initialize with barebones DF.</span>
         <span class="k">if</span> <span class="n">df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">required_columns</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
@@ -183,11 +180,9 @@ src="/js/documentation_options.js">
         <span class="k">if</span> <span class="nb">all</span><span class="p">((</span><span class="nb">type</span><span class="p">(</span><span class="n">datum</span><span class="p">)</span> <span class="ow">is</span> <span class="n">data_type</span><span class="p">)</span> <span class="k">for</span> <span class="n">datum</span> <span class="ow">in</span> <span class="n">data</span><span class="p">):</span>
             <span class="c1"># if all types in iterable are subclasses of Data, return the subclass</span>
             <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">Data</span><span class="p">):</span>
-                <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `concat`.</span>
                 <span class="k">return</span> <span class="n">data_type</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># if not, return the original Data object</span>
-                <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `concat`.</span>
                 <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"More than one custom data type found in data iterable"</span><span class="p">)</span></div>
@@ -233,7 +228,6 @@ src="/js/documentation_options.js">
         <span class="k">if</span> <span class="n">sample_sizes</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
                 <span class="n">record</span><span class="p">[</span><span class="s2">"n"</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_sizes</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"arm_name"</span><span class="p">])]</span>
-        <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
         <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">records</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Data.from_fidelity_evaluations"><a class="viewcode-back" href="../../../core.html#ax.Data.from_fidelity_evaluations">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -280,7 +274,6 @@ src="/js/documentation_options.js">
         <span class="k">if</span> <span class="n">sample_sizes</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
                 <span class="n">record</span><span class="p">[</span><span class="s2">"n"</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_sizes</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="s2">"arm_name"</span><span class="p">])]</span>
-        <span class="c1"># pyre-fixme[16]: Module `pd` has no attribute `DataFrame`.</span>
         <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">records</span><span class="p">))</span></div>
 
     <span class="nd">@property</span>
@@ -302,6 +295,7 @@ src="/js/documentation_options.js">
 <span class="sd">            str: The hash of the DataFrame.</span>
 
 <span class="sd">        """</span>
+        <span class="c1"># pyre-fixme[16]: `Optional` has no attribute `encode`.</span>
         <span class="k">return</span> <span class="n">md5</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
 
     <span class="nd">@property</span>

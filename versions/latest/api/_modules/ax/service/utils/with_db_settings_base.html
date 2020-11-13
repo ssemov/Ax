@@ -62,9 +62,9 @@ src="/js/documentation_options.js">
         <span class="n">_update_generation_strategy</span><span class="p">,</span>
         <span class="n">_update_trials</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">ax.storage.sqa_store.structs</span> <span class="kn">import</span> <span class="n">DBSettings</span>
     <span class="kn">from</span> <span class="nn">sqlalchemy.exc</span> <span class="kn">import</span> <span class="n">OperationalError</span>
     <span class="kn">from</span> <span class="nn">sqlalchemy.orm.exc</span> <span class="kn">import</span> <span class="n">StaleDataError</span>
-    <span class="kn">from</span> <span class="nn">ax.storage.sqa_store.structs</span> <span class="kn">import</span> <span class="n">DBSettings</span>
 
     <span class="c1"># We retry on `OperationalError` if saving to DB.</span>
     <span class="n">RETRY_EXCEPTION_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="n">OperationalError</span><span class="p">,</span> <span class="n">StaleDataError</span><span class="p">)</span>
@@ -189,7 +189,9 @@ src="/js/documentation_options.js">
         <span class="k">return</span> <span class="n">saved_exp</span><span class="p">,</span> <span class="n">saved_gs</span>
 
     <span class="k">def</span> <span class="nf">_load_experiment_and_generation_strategy</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">:</span> <span class="nb">str</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">experiment_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">reduced_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">Experiment</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GenerationStrategy</span><span class="p">]]:</span>
         <span class="sd">"""Loads experiment and its corresponding generation strategy from database</span>
 <span class="sd">        if DB settings are set on this `WithDBSettingsBase` instance.</span>
@@ -197,6 +199,11 @@ src="/js/documentation_options.js">
 <span class="sd">        Args:</span>
 <span class="sd">            experiment_name: Name of the experiment to load, used as unique</span>
 <span class="sd">                identifier by which to find the experiment.</span>
+<span class="sd">            reduced_state: Whether to load experiment and generation strategy</span>
+<span class="sd">                with a slightly reduced state (without abandoned arms on experiment</span>
+<span class="sd">                and model state on each generator run in experiment and generation</span>
+<span class="sd">                strategy; last generator run on generation strategy will still</span>
+<span class="sd">                have its model state).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            - Tuple of `None` and `None` if `DBSettings` are set and no experiment</span>
@@ -209,9 +216,16 @@ src="/js/documentation_options.js">
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_settings_set</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot load from DB in absence of DB settings."</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Loading experiment and generation strategy..."</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">"Loading experiment and generation strategy (with reduced state: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">reduced_state</span><span class="si">}</span><span class="s2">)..."</span>
+        <span class="p">)</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="n">experiment</span> <span class="o">=</span> <span class="n">_load_experiment</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">,</span> <span class="n">decoder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_settings</span><span class="o">.</span><span class="n">decoder</span><span class="p">)</span>
+        <span class="n">experiment</span> <span class="o">=</span> <span class="n">_load_experiment</span><span class="p">(</span>
+            <span class="n">experiment_name</span><span class="p">,</span>
+            <span class="n">decoder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_settings</span><span class="o">.</span><span class="n">decoder</span><span class="p">,</span>
+            <span class="n">reduced_state</span><span class="o">=</span><span class="n">reduced_state</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">Experiment</span><span class="p">)</span> <span class="ow">or</span> <span class="n">experiment</span><span class="o">.</span><span class="n">is_simple_experiment</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Service API only supports `Experiment`."</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -222,7 +236,10 @@ src="/js/documentation_options.js">
         <span class="k">try</span><span class="p">:</span>
             <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="n">generation_strategy</span> <span class="o">=</span> <span class="n">_load_generation_strategy_by_experiment_name</span><span class="p">(</span>
-                <span class="n">experiment_name</span><span class="o">=</span><span class="n">experiment_name</span><span class="p">,</span> <span class="n">decoder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_settings</span><span class="o">.</span><span class="n">decoder</span>
+                <span class="n">experiment_name</span><span class="o">=</span><span class="n">experiment_name</span><span class="p">,</span>
+                <span class="n">decoder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_settings</span><span class="o">.</span><span class="n">decoder</span><span class="p">,</span>
+                <span class="n">experiment</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span>
+                <span class="n">reduced_state</span><span class="o">=</span><span class="n">reduced_state</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"Loaded generation strategy for experiment </span><span class="si">{</span><span class="n">experiment_name</span><span class="si">}</span><span class="s2"> in "</span>

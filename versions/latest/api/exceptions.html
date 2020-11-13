@@ -80,9 +80,15 @@ more data is available.</p>
 <p>Useful to distinguish data failure reasons in automated analyses.</p>
 </dd></dl>
 <dl class="exception">
+<dt id="ax.exceptions.core.OptimizationComplete">
+<em class="property">exception </em><code class="sig-prename descclassname">ax.exceptions.core.</code><code class="sig-name descname">OptimizationComplete</code><span class="sig-paren">(</span><em class="sig-param">message: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ax/exceptions/core.html#OptimizationComplete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.exceptions.core.OptimizationComplete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ax.exceptions.core.AxError" title="ax.exceptions.core.AxError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ax.exceptions.core.AxError</span></code></a></p>
+<p>Raised when you hit SearchSpaceExhausted and GenerationStrategyComplete.</p>
+</dd></dl>
+<dl class="exception">
 <dt id="ax.exceptions.core.SearchSpaceExhausted">
 <em class="property">exception </em><code class="sig-prename descclassname">ax.exceptions.core.</code><code class="sig-name descname">SearchSpaceExhausted</code><span class="sig-paren">(</span><em class="sig-param">message: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ax/exceptions/core.html#SearchSpaceExhausted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.exceptions.core.SearchSpaceExhausted" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#ax.exceptions.core.AxError" title="ax.exceptions.core.AxError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ax.exceptions.core.AxError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#ax.exceptions.core.OptimizationComplete" title="ax.exceptions.core.OptimizationComplete"><code class="xref py py-class docutils literal notranslate"><span class="pre">ax.exceptions.core.OptimizationComplete</span></code></a></p>
 <p>Raised when using an algorithm that deduplicates points and no more
 new points can be sampled from the search space.</p>
 </dd></dl>
@@ -129,8 +135,8 @@ and an Ax-friendly message is stored as the actual error message.</p>
 <span id="generation-strategy"></span><h2>Generation Strategy<a class="headerlink" href="#module-ax.exceptions.generation_strategy" title="Permalink to this headline">¶</a></h2>
 <dl class="exception">
 <dt id="ax.exceptions.generation_strategy.GenerationStrategyCompleted">
-<em class="property">exception </em><code class="sig-prename descclassname">ax.exceptions.generation_strategy.</code><code class="sig-name descname">GenerationStrategyCompleted</code><span class="sig-paren">(</span><em class="sig-param">message: str</em>, <em class="sig-param">hint: str = ''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ax/exceptions/generation_strategy.html#GenerationStrategyCompleted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.exceptions.generation_strategy.GenerationStrategyCompleted" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#ax.exceptions.core.AxError" title="ax.exceptions.core.AxError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ax.exceptions.core.AxError</span></code></a></p>
+<em class="property">exception </em><code class="sig-prename descclassname">ax.exceptions.generation_strategy.</code><code class="sig-name descname">GenerationStrategyCompleted</code><span class="sig-paren">(</span><em class="sig-param">message: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ax/exceptions/generation_strategy.html#GenerationStrategyCompleted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.exceptions.generation_strategy.GenerationStrategyCompleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ax.exceptions.core.OptimizationComplete" title="ax.exceptions.core.OptimizationComplete"><code class="xref py py-class docutils literal notranslate"><span class="pre">ax.exceptions.core.OptimizationComplete</span></code></a></p>
 <p>Special exception indicating that the generation strategy has been
 completed.</p>
 </dd></dl>

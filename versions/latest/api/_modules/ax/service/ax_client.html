@@ -341,9 +341,11 @@ src="/js/documentation_options.js">
             <span class="n">trial</span><span class="o">=</span><span class="n">trial</span><span class="p">,</span>
             <span class="n">suppress_all_errors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_suppress_storage_errors</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="c1"># TODO[T79183560]: Ensure correct handling of generator run when using</span>
+        <span class="c1"># foreign keys.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_generation_strategy_in_db_if_possible</span><span class="p">(</span>
             <span class="n">generation_strategy</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">generation_strategy</span><span class="p">,</span>
-            <span class="n">new_generator_runs</span><span class="o">=</span><span class="n">trial</span><span class="o">.</span><span class="n">generator_runs</span><span class="p">,</span>
+            <span class="n">new_generator_runs</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">generation_strategy</span><span class="o">.</span><span class="n">_generator_runs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
             <span class="n">suppress_all_errors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_suppress_storage_errors</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">not_none</span><span class="p">(</span><span class="n">trial</span><span class="o">.</span><span class="n">arm</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">trial</span><span class="o">.</span><span class="n">index</span></div>
@@ -537,7 +539,6 @@ src="/js/documentation_options.js">
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">TParameterization</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TModelPredictArm</span><span class="p">]]]:</span>
         <span class="k">return</span> <span class="n">best_point_utils</span><span class="o">.</span><span class="n">get_best_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">)</span></div>
 
-    <span class="c1"># pyre-fixme[11]: Annotation `DataFrame` is not defined as a type.</span>
 <div class="viewcode-block" id="AxClient.get_trials_data_frame"><a class="viewcode-back" href="../../../service.html#ax.service.ax_client.AxClient.get_trials_data_frame">[docs]</a>    <span class="k">def</span> <span class="nf">get_trials_data_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">exp_to_df</span><span class="p">(</span><span class="n">exp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="p">)</span></div>
 
