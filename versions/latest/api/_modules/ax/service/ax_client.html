@@ -392,14 +392,9 @@ src="/js/documentation_options.js">
         <span class="n">evaluations</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_evaluations_and_data</span><span class="p">(</span>
             <span class="n">trial</span><span class="o">=</span><span class="n">trial</span><span class="p">,</span> <span class="n">raw_data</span><span class="o">=</span><span class="n">raw_data</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span> <span class="n">sample_sizes</span><span class="o">=</span><span class="n">sample_sizes</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_trial_data</span><span class="p">(</span><span class="n">trial</span><span class="o">=</span><span class="n">trial</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="n">trial</span><span class="o">.</span><span class="n">_run_metadata</span> <span class="o">=</span> <span class="n">metadata</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">metric_name</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">"metric_name"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">metric_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"Data was logged for metric </span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2"> that was not yet "</span>
-                    <span class="s2">"tracked on the experiment. Adding it as tracking metric."</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">add_tracking_metric</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">metric_name</span><span class="p">))</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">attach_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="n">trial</span><span class="o">.</span><span class="n">mark_completed</span><span class="p">()</span>
         <span class="n">data_for_logging</span> <span class="o">=</span> <span class="n">_round_floats_for_logging</span><span class="p">(</span>
@@ -451,14 +446,9 @@ src="/js/documentation_options.js">
         <span class="n">evaluations</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_evaluations_and_data</span><span class="p">(</span>
             <span class="n">trial</span><span class="o">=</span><span class="n">trial</span><span class="p">,</span> <span class="n">raw_data</span><span class="o">=</span><span class="n">raw_data</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span> <span class="n">sample_sizes</span><span class="o">=</span><span class="n">sample_sizes</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_trial_data</span><span class="p">(</span><span class="n">trial</span><span class="o">=</span><span class="n">trial</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="n">trial</span><span class="o">.</span><span class="n">_run_metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{})</span>
-        <span class="k">for</span> <span class="n">metric_name</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">"metric_name"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">metric_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"Data was logged for metric </span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2"> that was not yet "</span>
-                    <span class="s2">"tracked on the experiment. Adding it as tracking metric."</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">add_tracking_metric</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">metric_name</span><span class="p">))</span>
+
         <span class="c1"># Registering trial data update is needed for generation strategies that</span>
         <span class="c1"># leverage the `update` functionality of model and bridge setup and therefore</span>
         <span class="c1"># need to be aware of new data added to experiment. Usually this happends</span>
@@ -1058,6 +1048,15 @@ src="/js/documentation_options.js">
                     <span class="sa">f</span><span class="s2">"parameter on experiment be of type </span><span class="si">{</span><span class="n">typ</span><span class="si">}</span><span class="s2">, set `value_type` "</span>
                     <span class="sa">f</span><span class="s2">"on experiment creation for </span><span class="si">{</span><span class="n">p_name</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_trial_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trial</span><span class="p">:</span> <span class="n">Trial</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">metric_name</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">"metric_name"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">metric_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Data was logged for metric </span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2"> that was not yet "</span>
+                    <span class="s2">"tracked on the experiment. Adding it as tracking metric."</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">add_tracking_metric</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">metric_name</span><span class="p">))</span>
 
     <span class="c1"># -------- Backward-compatibility with old save / load method names. -------</span>
 
