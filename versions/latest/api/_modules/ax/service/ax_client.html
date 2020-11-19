@@ -35,7 +35,7 @@ src="/js/documentation_options.js">
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Type</span>
 
 <span class="kn">import</span> <span class="nn">ax.service.utils.best_point</span> <span class="k">as</span> <span class="nn">best_point_utils</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -88,6 +88,9 @@ src="/js/documentation_options.js">
 
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="n">AxClientSubclass</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"AxClientSubclass"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"AxClient"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="AxClient"><a class="viewcode-back" href="../../../service.html#ax.service.ax_client.AxClient">[docs]</a><span class="k">class</span> <span class="nc">AxClient</span><span class="p">(</span><span class="n">WithDBSettingsBase</span><span class="p">):</span>
@@ -821,16 +824,16 @@ src="/js/documentation_options.js">
             <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_json_snapshot</span><span class="p">()))</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved JSON-serialized state of optimization to `</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">`."</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AxClient.load_from_json_file"><a class="viewcode-back" href="../../../service.html#ax.service.ax_client.AxClient.load_from_json_file">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="AxClient.load_from_json_file"><a class="viewcode-back" href="../../../service.html#ax.service.ax_client.AxClient.load_from_json_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">load_from_json_file</span><span class="p">(</span>
-        <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ax_client_snapshot.json"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"AxClient"</span><span class="p">:</span>
+        <span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AxClientSubclass</span><span class="p">],</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ax_client_snapshot.json"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AxClientSubclass</span><span class="p">:</span>
         <span class="sd">"""Restore an `AxClient` and its state from a JSON-serialized snapshot,</span>
 <span class="sd">        residing in a .json file by the given path.</span>
 <span class="sd">        """</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
             <span class="n">serialized</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-            <span class="k">return</span> <span class="n">AxClient</span><span class="o">.</span><span class="n">from_json_snapshot</span><span class="p">(</span><span class="n">serialized</span><span class="o">=</span><span class="n">serialized</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_json_snapshot</span><span class="p">(</span><span class="n">serialized</span><span class="o">=</span><span class="n">serialized</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AxClient.to_json_snapshot"><a class="viewcode-back" href="../../../service.html#ax.service.ax_client.AxClient.to_json_snapshot">[docs]</a>    <span class="k">def</span> <span class="nf">to_json_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="sd">"""Serialize this `AxClient` to JSON to be able to interrupt and restart</span>
@@ -846,12 +849,14 @@ src="/js/documentation_options.js">
             <span class="s2">"_enforce_sequential_optimization"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_sequential_optimization</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="AxClient.from_json_snapshot"><a class="viewcode-back" href="../../../service.html#ax.service.ax_client.AxClient.from_json_snapshot">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_json_snapshot</span><span class="p">(</span><span class="n">serialized</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"AxClient"</span><span class="p">:</span>
+<div class="viewcode-block" id="AxClient.from_json_snapshot"><a class="viewcode-back" href="../../../service.html#ax.service.ax_client.AxClient.from_json_snapshot">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_json_snapshot</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AxClientSubclass</span><span class="p">],</span> <span class="n">serialized</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AxClientSubclass</span><span class="p">:</span>
         <span class="sd">"""Recreate an `AxClient` from a JSON snapshot."""</span>
         <span class="n">experiment</span> <span class="o">=</span> <span class="n">object_from_json</span><span class="p">(</span><span class="n">serialized</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"experiment"</span><span class="p">))</span>
         <span class="n">serialized_generation_strategy</span> <span class="o">=</span> <span class="n">serialized</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"generation_strategy"</span><span class="p">)</span>
-        <span class="n">ax_client</span> <span class="o">=</span> <span class="n">AxClient</span><span class="p">(</span>
+        <span class="n">ax_client</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">generation_strategy</span><span class="o">=</span><span class="n">generation_strategy_from_json</span><span class="p">(</span>
                 <span class="n">generation_strategy_json</span><span class="o">=</span><span class="n">serialized_generation_strategy</span>
             <span class="p">)</span>

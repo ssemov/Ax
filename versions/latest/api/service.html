@@ -190,7 +190,7 @@ generation strategy should be used when none was specified on init.</p></li>
 </dd></dl>
 <dl class="method">
 <dt id="ax.service.ax_client.AxClient.from_json_snapshot">
-<em class="property">static </em><code class="sig-name descname">from_json_snapshot</code><span class="sig-paren">(</span><em class="sig-param">serialized: Dict[str, Any], **kwargs</em><span class="sig-paren">)</span> → ax.service.ax_client.AxClient<a class="reference internal" href="_modules/ax/service/ax_client.html#AxClient.from_json_snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.service.ax_client.AxClient.from_json_snapshot" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_json_snapshot</code><span class="sig-paren">(</span><em class="sig-param">serialized: Dict[str, Any], **kwargs</em><span class="sig-paren">)</span> → AxClientSubclass<a class="reference internal" href="_modules/ax/service/ax_client.html#AxClient.from_json_snapshot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.service.ax_client.AxClient.from_json_snapshot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recreate an <cite>AxClient</cite> from a JSON snapshot.</p>
 </dd></dl>
 <dl class="method">
@@ -364,7 +364,7 @@ passed to this <cite>AxClient</cite> on instantiation.</p>
 </dd></dl>
 <dl class="method">
 <dt id="ax.service.ax_client.AxClient.load_from_json_file">
-<em class="property">static </em><code class="sig-name descname">load_from_json_file</code><span class="sig-paren">(</span><em class="sig-param">filepath: str = 'ax_client_snapshot.json'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> → ax.service.ax_client.AxClient<a class="reference internal" href="_modules/ax/service/ax_client.html#AxClient.load_from_json_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.service.ax_client.AxClient.load_from_json_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">load_from_json_file</code><span class="sig-paren">(</span><em class="sig-param">filepath: str = 'ax_client_snapshot.json'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> → AxClientSubclass<a class="reference internal" href="_modules/ax/service/ax_client.html#AxClient.load_from_json_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ax.service.ax_client.AxClient.load_from_json_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restore an <cite>AxClient</cite> and its state from a JSON-serialized snapshot,
 residing in a .json file by the given path.</p>
 </dd></dl>

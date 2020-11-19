@@ -39,7 +39,7 @@ src="/js/documentation_options.js">
 <span class="kn">from</span> <span class="nn">ax.core.observation</span> <span class="kn">import</span> <span class="n">Observation</span><span class="p">,</span> <span class="n">ObservationData</span>
 <span class="kn">from</span> <span class="nn">ax.modelbridge.base</span> <span class="kn">import</span> <span class="n">ModelBridge</span>
 <span class="kn">from</span> <span class="nn">ax.utils.common.logger</span> <span class="kn">import</span> <span class="n">get_logger</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">fisher_exact</span><span class="p">,</span> <span class="n">pearsonr</span><span class="p">,</span> <span class="n">spearmanr</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">fisher_exact</span><span class="p">,</span> <span class="n">pearsonr</span><span class="p">,</span> <span class="n">spearmanr</span><span class="p">,</span> <span class="n">norm</span>
 
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -51,6 +51,7 @@ src="/js/documentation_options.js">
 <span class="n">CORRELATION_COEFFICIENT</span> <span class="o">=</span> <span class="s2">"Correlation coefficient"</span>
 <span class="n">RANK_CORRELATION</span> <span class="o">=</span> <span class="s2">"Rank correlation"</span>
 <span class="n">FISHER_EXACT_TEST_P</span> <span class="o">=</span> <span class="s2">"Fisher exact test p"</span>
+<span class="n">LOG_LIKELIHOOD</span> <span class="o">=</span> <span class="s2">"Log likelihood"</span>
 
 
 <div class="viewcode-block" id="CVResult"><a class="viewcode-back" href="../../../modelbridge.html#ax.modelbridge.cross_validation.CVResult">[docs]</a><span class="k">class</span> <span class="nc">CVResult</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
@@ -242,6 +243,7 @@ src="/js/documentation_options.js">
         <span class="n">CORRELATION_COEFFICIENT</span><span class="p">:</span> <span class="n">_correlation_coefficient</span><span class="p">,</span>
         <span class="n">RANK_CORRELATION</span><span class="p">:</span> <span class="n">_rank_correlation</span><span class="p">,</span>
         <span class="n">FISHER_EXACT_TEST_P</span><span class="p">:</span> <span class="n">_fisher_exact_test_p</span><span class="p">,</span>
+        <span class="n">LOG_LIKELIHOOD</span><span class="p">:</span> <span class="n">_log_likelihood</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">diagnostics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
@@ -318,6 +320,13 @@ src="/js/documentation_options.js">
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="c1"># Pyre does not allow float * np.ndarray.</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mf">1.96</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">se_pred</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_obs</span><span class="p">)))</span>
+
+
+<span class="k">def</span> <span class="nf">_log_likelihood</span><span class="p">(</span>
+    <span class="n">y_obs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">se_pred</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="c1"># pyre-ignore [16]</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">y_obs</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">se_pred</span><span class="p">)))</span>
 
 
 <span class="k">def</span> <span class="nf">_mape</span><span class="p">(</span><span class="n">y_obs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">se_pred</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
