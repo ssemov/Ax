@@ -37,6 +37,7 @@ src="/js/documentation_options.js">
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">ax.core.types</span> <span class="kn">import</span> <span class="n">TParamValue</span>
+<span class="kn">from</span> <span class="nn">ax.exceptions.core</span> <span class="kn">import</span> <span class="n">UserInputError</span>
 <span class="kn">from</span> <span class="nn">ax.utils.common.base</span> <span class="kn">import</span> <span class="n">Base</span>
 
 
@@ -151,7 +152,7 @@ src="/js/documentation_options.js">
 <span class="sd">            target_value: Target value of this parameter if it is a fidelity.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">is_fidelity</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">UserInputError</span><span class="p">(</span>
                 <span class="s2">"`target_value` should not be None for the fidelity parameter: "</span>
                 <span class="s2">"</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="p">)</span>
@@ -180,17 +181,17 @@ src="/js/documentation_options.js">
             <span class="n">ParameterType</span><span class="o">.</span><span class="n">INT</span><span class="p">,</span>
             <span class="n">ParameterType</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span>
         <span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"RangeParameter type must be int or float."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">UserInputError</span><span class="p">(</span><span class="s2">"RangeParameter type must be int or float."</span><span class="p">)</span>
         <span class="c1"># pyre-fixme[58]: `&gt;=` is not supported for operand types `Union[None, bool,</span>
         <span class="c1">#  float, int, str]` and `Union[None, bool, float, int, str]`.</span>
         <span class="k">if</span> <span class="n">lower</span> <span class="o">&gt;=</span> <span class="n">upper</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"max must be strictly larger than min."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">UserInputError</span><span class="p">(</span><span class="s2">"max must be strictly larger than min."</span><span class="p">)</span>
         <span class="c1"># pyre-fixme[58]: `&lt;=` is not supported for operand types `Union[None, bool,</span>
         <span class="c1">#  float, int, str]` and `int`.</span>
         <span class="k">if</span> <span class="n">log_scale</span> <span class="ow">and</span> <span class="n">lower</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot take log when min &lt;= 0."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">UserInputError</span><span class="p">(</span><span class="s2">"Cannot take log when min &lt;= 0."</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_valid_type</span><span class="p">(</span><span class="n">lower</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_valid_type</span><span class="p">(</span><span class="n">upper</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">UserInputError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">lower</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">upper</span><span class="si">}</span><span class="s2">] is an invalid range for this parameter."</span>
             <span class="p">)</span>
 
@@ -248,6 +249,7 @@ src="/js/documentation_options.js">
             <span class="n">lower</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lower</span>
         <span class="k">if</span> <span class="n">upper</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upper</span>
+
         <span class="n">cast_lower</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">lower</span><span class="p">)</span>
         <span class="n">cast_upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_range_param</span><span class="p">(</span>
@@ -266,7 +268,7 @@ src="/js/documentation_options.js">
         <span class="c1"># pyre-fixme[58]: `&gt;=` is not supported for operand types `Union[None, bool,</span>
         <span class="c1">#  float, int, str]` and `Union[None, bool, float, int, str]`.</span>
         <span class="k">if</span> <span class="n">cast_lower</span> <span class="o">&gt;=</span> <span class="n">cast_upper</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">UserInputError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"Lower bound </span><span class="si">{</span><span class="n">cast_lower</span><span class="si">}</span><span class="s2"> is &gt;= upper bound </span><span class="si">{</span><span class="n">cast_upper</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
 
@@ -378,7 +380,7 @@ src="/js/documentation_options.js">
 <span class="sd">            target_value: Target value of this parameter if it's fidelity.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">is_fidelity</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">UserInputError</span><span class="p">(</span>
                 <span class="s2">"`target_value` should not be None for the fidelity parameter: "</span>
                 <span class="s2">"</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="p">)</span>
@@ -391,7 +393,7 @@ src="/js/documentation_options.js">
         <span class="bp">self</span><span class="o">.</span><span class="n">_target_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">target_value</span><span class="p">)</span>
         <span class="c1"># A choice parameter with only one value is a FixedParameter.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">FIXED_CHOICE_PARAM_ERROR</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">UserInputError</span><span class="p">(</span><span class="n">FIXED_CHOICE_PARAM_ERROR</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cast_values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -424,7 +426,7 @@ src="/js/documentation_options.js">
 <span class="sd">        """</span>
         <span class="c1"># A choice parameter with only one value is a FixedParameter.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">FIXED_CHOICE_PARAM_ERROR</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">UserInputError</span><span class="p">(</span><span class="n">FIXED_CHOICE_PARAM_ERROR</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cast_values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
@@ -501,7 +503,7 @@ src="/js/documentation_options.js">
 <span class="sd">            target_value: Target value of this parameter if it is a fidelity.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">is_fidelity</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">UserInputError</span><span class="p">(</span>
                 <span class="s2">"`target_value` should not be None for the fidelity parameter: "</span>
                 <span class="s2">"</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
             <span class="p">)</span>
